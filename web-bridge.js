@@ -79,6 +79,7 @@
   }
 
   window.cvApp = {
+    web: true,
     savePptx: async (base64, suggestedName) => {
       const blob = b64ToBlob(base64, "application/vnd.openxmlformats-officedocument.presentationml.presentation");
       telecharger(blob, String(suggestedName || "CV").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80) + ".pptx");

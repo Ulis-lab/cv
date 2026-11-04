@@ -83,7 +83,7 @@ document.getElementById("btn-print").onclick=async()=>{
   try{ const res=await avecModeExport(()=>window.cvApp.printCv()); if(res&&!res.ok&&res.error) alert(res.error); }
   catch(e){alert("Erreur impression : "+e.message);console.error(e);}
 };
-document.getElementById("btn-reset").onclick=()=>{if(confirm("Tout effacer ?")){data=JSON.parse(JSON.stringify(defaultData));buildForm();render();markSauve();}};
+document.getElementById("btn-reset").onclick=()=>{if(confirm("Tout effacer ? (le CV gardé automatiquement sur cet ordinateur sera effacé aussi)")){data=JSON.parse(JSON.stringify(defaultData));buildForm();render();markSauve();effacerAuto();}};
 
 document.getElementById("btn-save").onclick=()=>{
   const blob=new Blob([JSON.stringify({version:1,template:currentTemplate,data},null,2)],{type:"application/json"});
@@ -101,7 +101,7 @@ document.getElementById("load-input").onchange=e=>{
     // on ne fait JAMAIS confiance au fichier : liste blanche de champs, types et tailles vérifiés
     data=nettoyerData(o.data);
     if(modeleValide(o.template))currentTemplate=o.template;
-    buildForm();buildTemplateBar();render();markSauve();
+    buildForm();buildTemplateBar();render();markSauve();planifierAuto();
   }catch(_){alert("Fichier CV invalide.");}};
   r.readAsText(f);
 };
@@ -134,11 +134,58 @@ document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
 
 // ===== SUIVI "MODIFIÉ NON SAUVEGARDÉ" =====
 let modifie=false;
-function markModifie(){ modifie=true; if(window.cvApp&&window.cvApp.setModifie) window.cvApp.setModifie(true); }
+function markModifie(){ modifie=true; if(window.cvApp&&window.cvApp.setModifie) window.cvApp.setModifie(true); planifierAuto(); }
 function markSauve(){ modifie=false; if(window.cvApp&&window.cvApp.setModifie) window.cvApp.setModifie(false); }
 
 // mémoriser le dernier modèle choisi
 try{ const m=localStorage.getItem("cv-modele"); if(modeleValide(m)) currentTemplate=m; }catch(e){}
+
+/* ===== SAUVEGARDE AUTOMATIQUE (dans CE navigateur / CET ordinateur uniquement, rien n'est envoyé) =====
+   - enregistre le CV ~1 s après chaque modification
+   - au démarrage suivant : fenêtre « Reprendre mon CV ? » (jamais de restauration silencieuse) */
+const CLE_AUTO="cv-auto";
+let _auto=0,_autoPrevenu=false;
+function planifierAuto(){ clearTimeout(_auto); _auto=setTimeout(sauverAuto,800); }
+function effacerAuto(){ clearTimeout(_auto); try{localStorage.removeItem(CLE_AUTO);}catch(_){} }
+function sauverAuto(){
+  clearTimeout(_auto); _auto=0;
+  try{
+    if(JSON.stringify(data)===JSON.stringify(defaultData)){ localStorage.removeItem(CLE_AUTO); return; } // CV vide : rien à garder
+    localStorage.setItem(CLE_AUTO,JSON.stringify({v:1,t:Date.now(),data}));
+    // version web : CV déjà gardé → plus besoin de l'alerte « quitter la page ? » (elle revient si la sauvegarde auto échoue)
+    if(window.cvApp&&window.cvApp.web&&window.cvApp.setModifie) window.cvApp.setModifie(false);
+  }catch(e){
+    if(!_autoPrevenu){ _autoPrevenu=true; flash("Sauvegarde automatique impossible ici : pense à utiliser « Sauvegarder »."); }
+  }
+}
+// à la fermeture / changement d'onglet : on n'attend pas le délai
+window.addEventListener("pagehide",()=>{ if(_auto) sauverAuto(); });
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"&&_auto) sauverAuto(); });
+
+function lireAuto(){
+  try{
+    const o=JSON.parse(localStorage.getItem(CLE_AUTO)||"null");
+    if(!o||typeof o.data!=="object"||o.data===null) return null;
+    return {t:Number(o.t)||0,data:nettoyerData(o.data)}; // jamais confiance : même nettoyage qu'un fichier chargé
+  }catch(_){ return null; }
+}
+function proposerReprise(){
+  const a=lireAuto(); if(!a) return;
+  const nom=((a.data.prenom||"")+" "+(a.data.nom||"")).trim();
+  let quand=""; try{ if(a.t) quand=new Date(a.t).toLocaleString("fr-FR",{dateStyle:"short",timeStyle:"short"}); }catch(_){}
+  const ov=document.createElement("div"); ov.className="pm-overlay"; ov.style.display="flex";
+  ov.innerHTML='<div class="pm-box" role="dialog" aria-modal="true" aria-labelledby="rp-titre" style="width:430px">'
+    +'<h3 id="rp-titre">Reprendre ton CV ?</h3>'
+    +'<p style="font-size:14px;margin-bottom:8px">Un CV en cours a été gardé automatiquement sur cet ordinateur'+(nom?' : <b>'+esc(nom)+'</b>':'')+(quand?' <span style="color:var(--ui-muted)">('+esc(quand)+')</span>':'')+'.</p>'
+    +'<p style="font-size:12px;color:var(--ui-muted);margin-bottom:14px">Il reste uniquement sur cet ordinateur, rien n\'est envoyé sur internet. Sur un ordinateur partagé, clique sur « Repartir de zéro » avant de partir.</p>'
+    +'<div class="pm-actions" style="justify-content:flex-end"><button type="button" id="rp-non">Repartir de zéro</button><button type="button" id="rp-oui" class="primary">Reprendre mon CV</button></div></div>';
+  document.body.appendChild(ov);
+  const liberer=piegeFocus(ov);
+  const fermer=()=>{ liberer(); ov.remove(); }; // pas de fermeture par Échap : il faut choisir (sinon la 1re frappe écraserait la sauvegarde)
+  ov.querySelector("#rp-oui").onclick=()=>{ data=a.data; fermer(); buildForm(); buildTemplateBar(); render(); markSauve(); flash("CV repris ✓"); };
+  ov.querySelector("#rp-non").onclick=()=>{ effacerAuto(); fermer(); };
+  ov.querySelector("#rp-oui").focus();
+}
 
 // ===== MOBILE : bascule Formulaire / Aperçu + aperçu cadré sur la largeur de l'écran =====
 function choisirVue(apercu){
@@ -156,3 +203,4 @@ zoomAuto();
 
 buildForm(); buildTemplateBar(); render();
 cablerEditeurPhoto(); // clic sur la photo de l'aperçu → recadrage
+proposerReprise();   // CV gardé automatiquement ? on propose de le reprendre

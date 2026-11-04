@@ -1,4 +1,4 @@
-# Créateur de CV — version web (Beta 0.3.3)
+# Créateur de CV — version web (Beta 0.3.4)
 
 Un outil simple pour aider les élèves à faire leur CV : on remplit un formulaire, on choisit un modèle, on personnalise (couleur, police, forme et cadrage de la photo), puis on enregistre.
 
@@ -13,7 +13,9 @@ Un outil simple pour aider les élèves à faire leur CV : on remplit un formula
 - **Imprimer** : impression directe.
 
 ## Vie privée
-Tout se passe dans le navigateur de l'élève. Aucune information (nom, photo, etc.) n'est envoyée sur internet ni stockée ici. 
+Tout se passe dans le navigateur de l'élève. Aucune information (nom, photo, etc.) n'est envoyée sur internet ni stockée ici.
+
+**Sauvegarde automatique** : le CV en cours est gardé dans le navigateur de l'ordinateur utilisé (pas sur internet). Au lancement suivant, l'appli propose de le reprendre ou de repartir de zéro. Sur un ordinateur partagé, cliquer sur « Repartir de zéro » ou « Effacer » avant de partir. 
 
 ## Pour les curieux
 Le même code existe en application Windows portable (Electron). Seul le fichier `web-bridge.js` change : il remplace l'enregistrement par des téléchargements et l'impression du navigateur.
