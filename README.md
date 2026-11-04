@@ -13,7 +13,7 @@ Un outil simple pour aider les élèves à faire leur CV : on remplit un formula
 - **Imprimer** : impression directe.
 
 ## Vie privée
-Tout se passe dans le navigateur de l'élève. Aucune information (nom, photo, etc.) n'est envoyée sur internet ni stockée ici. Ne mets jamais de CV d'élèves dans ce dépôt.
+Tout se passe dans le navigateur de l'élève. Aucune information (nom, photo, etc.) n'est envoyée sur internet ni stockée ici. 
 
 ## Pour les curieux
 Le même code existe en application Windows portable (Electron). Seul le fichier `web-bridge.js` change : il remplace l'enregistrement par des téléchargements et l'impression du navigateur.
