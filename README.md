@@ -1,4 +1,4 @@
-# Créateur de CV — version web (Beta 0.3.2)
+# Créateur de CV — version web (Beta 0.3.3)
 
 Un outil simple pour aider les élèves à faire leur CV : on remplit un formulaire, on choisit un modèle, on personnalise (couleur, police, forme et cadrage de la photo), puis on enregistre.
 

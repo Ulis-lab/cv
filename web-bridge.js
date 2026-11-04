@@ -50,7 +50,7 @@
       const ov = document.createElement("div");
       ov.className = "pm-overlay"; ov.style.display = "flex";
       ov.innerHTML = `
-        <div class="pm-box" style="width:400px" role="dialog" aria-label="Enregistrer en PDF">
+        <div class="pm-box" style="width:400px" role="dialog" aria-modal="true" aria-label="Enregistrer en PDF">
           <h3>Enregistrer en PDF</h3>
           <ol style="margin:0 0 12px 18px;line-height:1.7;font-size:14px">
             <li>Dans la fenêtre qui s'ouvre, mets <b>Destination</b> sur <b>« Enregistrer au format PDF »</b></li>
@@ -63,7 +63,12 @@
           </div>
         </div>`;
       document.body.appendChild(ov);
+      const liberer = piegeFocus(ov);
+      const kd = e => { if(e.key === "Escape") fermer(false); };
+      document.addEventListener("keydown", kd);
+      ov.querySelector("#aide-pdf-ok").focus();
       const fermer = ok => {
+        document.removeEventListener("keydown", kd); liberer();
         if(ok){ try{ if(ov.querySelector("#aide-pdf-nomore").checked) localStorage.setItem("cv-aide-pdf", "1"); }catch(_){} }
         ov.remove(); resolve(ok);
       };

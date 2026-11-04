@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'none'; form-action 'none'; base-uri 'none'">
 <title>Créateur de CV (web)</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 100 100%27%3E%3Ctext y=%27.9em%27 font-size=%2790%27%3E%F0%9F%93%84%3C/text%3E%3C/svg%3E">
@@ -19,7 +20,7 @@
 
   header.topbar { background:var(--ui-panel); border-bottom:1px solid var(--ui-border); padding:12px 20px; display:flex; align-items:center; justify-content:space-between; gap:16px; position:sticky; top:0; z-index:50; }
   .topbar h1 { font-size:17px; font-weight:700; }
-  .topbar h1 span { color:var(--ui-accent); }
+  .topbar h1 span { color:var(--ui-accent-text); }
   .topbar .actions { display:flex; gap:8px; flex-wrap:wrap; }
   button { font:inherit; cursor:pointer; border:1px solid var(--ui-border); background:var(--ui-panel); color:var(--ui-text); padding:9px 15px; border-radius:var(--radius); font-weight:600; transition:background .15s; }
   button:hover { background:var(--ui-accent-soft); }
@@ -101,6 +102,56 @@
     #cv-sheet { position:absolute; left:0; top:0; transform:none !important; box-shadow:none !important; margin:0; width:210mm; min-height:297mm; }
     header.topbar,.form-panel,.template-bar { display:none !important; }
   }
+
+
+  /* ===== BOUTONS / TEXTES : contrastes WCAG AA (texte blanc sur vert foncé) ===== */
+  :root { --ui-btn:#2e7d32; --ui-btn-hover:#1b5e20; --ui-accent-text:#1b5e20; --ui-muted:#5d636e; --ui-danger:#c0392b; --ui-ph:#6b717c; }
+  body[data-theme="dark"] { --ui-muted:#9aa1ab; --ui-btn:#2e7d32; --ui-btn-hover:#388e3c; --ui-accent-text:#86c388; --ui-danger:#ff8a80; --ui-ph:#9aa1ab; }
+  button.primary, .tab.active, .tpl-chip.active, .forme-btn.active { background:var(--ui-btn); border-color:var(--ui-btn); color:#fff; }
+  button.primary:hover { background:var(--ui-btn-hover); }
+  button.green { background:#17724a; border-color:#17724a; }
+  button.green:hover { background:#115a3a; }
+  button.danger, .remove-btn:hover { color:var(--ui-danger); }
+  .repeat-item .item-num, .add-btn { color:var(--ui-accent-text); }
+  input::placeholder,textarea::placeholder { color:var(--ui-ph); }
+  button { white-space:nowrap; }
+  /* focus clavier bien visible */
+  :focus-visible { outline:3px solid #1a73e8; outline-offset:2px; }
+  body[data-theme="dark"] :focus-visible { outline-color:#8ab4f8; }
+  input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid #1a73e8; outline-offset:1px; }
+  .pm-view:focus-visible { outline-offset:3px; }
+  #photo-holder:focus-visible { border-radius:50%; }
+  .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .sr-only:focus { position:fixed; left:8px; top:8px; width:auto; height:auto; clip:auto; z-index:2000; background:#fff; color:#000; padding:8px 12px; border-radius:6px; }
+  .vue-bar { display:none; }
+  @media (prefers-reduced-motion: reduce) { * { transition:none !important; animation:none !important; } }
+  button, .tpl-chip, .tab { min-height:36px; }
+  .repeat-item .mv-btn, .repeat-item .remove-btn { min-width:32px; min-height:32px; }
+
+  /* ===== RESPONSIVE : tablette / mobile ===== */
+  @media (max-width:900px) {
+    html, body { max-width:100%; overflow-x:hidden; }
+    header.topbar { flex-direction:column; align-items:stretch; gap:8px; padding:10px 12px; position:static; }
+    .topbar .actions { flex-wrap:wrap; gap:6px; }
+    .topbar .actions button { flex:1 1 auto; padding:9px 10px; font-size:13px; }
+    .layout { grid-template-columns:minmax(0,1fr); height:auto; min-height:calc(100dvh - 130px); padding-bottom:72px; }
+    .form-panel { border-right:none; overflow:visible; padding:14px 12px; }
+    .tabs { top:0; }
+    .preview-panel { overflow:visible; padding:12px 8px; min-width:0; }
+    .template-bar { max-width:100%; }
+    body:not(.vue-apercu) .preview-panel { display:none; }
+    body.vue-apercu .form-panel { display:none; }
+    .vue-bar { display:flex; position:fixed; left:0; right:0; bottom:0; z-index:60; gap:8px; padding:8px 12px calc(8px + env(safe-area-inset-bottom)); background:var(--ui-panel); border-top:1px solid var(--ui-border); }
+    .vue-bar button { flex:1; min-height:44px; font-size:15px; }
+    .vue-bar button[aria-pressed="true"] { background:var(--ui-btn); border-color:var(--ui-btn); color:#fff; }
+    .pm-box { padding:14px 12px; width:96vw; max-height:96dvh; overflow-y:auto; }
+    .pm-actions { flex-direction:column; }
+    .pm-left, .pm-right { justify-content:space-between; }
+    .pm-actions button { flex:1; min-height:44px; }
+    .repeat-item .mv-btn, .repeat-item .remove-btn { min-width:40px; min-height:40px; }
+    .zoom-ctl { margin-left:0; }
+  }
+  @media (max-width:420px) { .tab { font-size:12px; padding:10px 4px; } }
 
   /* =========================================================
      APERÇUS FIDÈLES AUX MODÈLES PPTX (m1..m10)
@@ -256,32 +307,34 @@
 </style>
 </head>
 <body>
+<a href="#cv-sheet" class="sr-only" id="skip">Aller à l'aperçu</a>
 <header class="topbar">
-  <h1>Créateur de <span>CV</span> <small style="font-size:11px;color:var(--ui-muted);font-weight:600;">Beta 0.3.2</small></h1>
+  <h1>Créateur de <span>CV</span> <small style="font-size:11px;color:var(--ui-muted);font-weight:600;">Beta 0.3.3</small></h1>
   <div class="actions">
     <button id="btn-save">Sauvegarder</button>
     <button id="btn-load">Charger</button>
     <button id="btn-pptx" class="green">PowerPoint (.pptx)</button>
     <button id="btn-pdf" title="Ouvre l'impression : choisis « Enregistrer au format PDF »">PDF</button>
     <button id="btn-print">Imprimer</button>
-    <button id="btn-reset" class="danger">Effacer</button>
+    <button id="btn-reset" class="danger" type="button">Effacer</button>
     <input type="file" id="load-input" accept="application/json,.json" style="display:none">
   </div>
 </header>
-<div class="layout">
-  <aside class="form-panel">
-    <div class="tabs">
-      <button class="tab active" data-tab="remplir">📝 Remplir mon CV</button>
-      <button class="tab" data-tab="perso">🎨 Personnalisation</button>
+<main class="layout" id="main">
+  <aside class="form-panel" aria-label="Formulaire du CV">
+    <div class="tabs" role="tablist" aria-label="Sections du formulaire">
+      <button class="tab active" role="tab" aria-selected="true" aria-controls="tab-remplir" data-tab="remplir">📝 Remplir mon CV</button>
+      <button class="tab" role="tab" aria-selected="false" aria-controls="tab-perso" data-tab="perso">🎨 Personnalisation</button>
     </div>
     <div id="tab-remplir" class="tab-content"></div>
     <div id="tab-perso" class="tab-content" style="display:none"></div>
   </aside>
-  <section class="preview-panel">
+  <section class="preview-panel" aria-label="Aperçu du CV">
     <div class="template-bar" id="template-bar"></div>
-    <div class="sheet-wrap" id="sheet-wrap"><div class="cv-sheet" id="cv-sheet"></div></div>
+    <div class="sheet-wrap" id="sheet-wrap"><div class="cv-sheet" id="cv-sheet" role="document" aria-label="Aperçu de ton CV"></div></div>
   </section>
-</div>
+</main>
+<nav class="vue-bar" aria-label="Affichage"><button type="button" id="vue-form" aria-pressed="true">📝 Formulaire</button><button type="button" id="vue-apercu" aria-pressed="false">👁 Aperçu</button></nav>
 <!-- SCRIPTS injectés ci-dessous -->
 <script src="pptxgen.bundle.js"></script>
 <script src="helpers.js"></script>

@@ -13,7 +13,7 @@ function buildFormRemplir(){
       <div class="photo-actions">
         <button type="button" id="btn-photo" class="primary">Ajouter une photo</button>
         <button type="button" id="btn-photo-crop">✂ Recadrer / zoomer</button>
-        <button type="button" id="btn-photo-del" style="background:transparent;border:none;color:#c0392b;text-decoration:underline;padding:0;font-size:12px;text-align:left;">Retirer</button>
+        <button type="button" id="btn-photo-del" style="background:transparent;border:none;color:var(--ui-danger);text-decoration:underline;padding:0;font-size:12px;text-align:left;">Retirer</button>
       </div></div>
     <input type="file" id="photo-input" accept="image/*" style="display:none">
     <h2>Qui suis-je ?</h2>
@@ -95,7 +95,8 @@ function buildFormPerso(){
 }
 function renderPhotoHolder(){
   const ps=imgSure(data.photo);
-  document.getElementById("photo-holder").innerHTML = ps?`<img class="photo-preview" src="${ps}" title="Clique pour recadrer">`:`<div class="photo-empty">Aucune</div>`;
+  document.getElementById("photo-holder").innerHTML = ps?`<img class="photo-preview" src="${ps}" alt="Ta photo" title="Clique pour recadrer">`:`<div class="photo-empty">Aucune</div>`;
+  document.getElementById("photo-holder").setAttribute("aria-label", ps?"Photo : ouvrir le recadrage":"Aucune photo : en ajouter une");
   const bc=document.getElementById("btn-photo-crop"); if(bc) bc.style.display=data.photo?"":"none";
 }
 function buildExpList(){
@@ -104,9 +105,9 @@ function buildExpList(){
     <div class="repeat-item">
       <div class="item-head"><span class="item-num">Expérience ${i+1}</span>
         <span class="item-tools">
-          <button type="button" class="mv-btn" data-mv-exp="${i}" data-dir="-1" ${i===0?"disabled":""} title="Monter">↑</button>
-          <button type="button" class="mv-btn" data-mv-exp="${i}" data-dir="1" ${i===n-1?"disabled":""} title="Descendre">↓</button>
-          <button type="button" class="remove-btn" data-rm-exp="${i}" title="Supprimer">×</button>
+          <button type="button" class="mv-btn" data-mv-exp="${i}" data-dir="-1" ${i===0?"disabled":""} title="Monter" aria-label="Monter">↑</button>
+          <button type="button" class="mv-btn" data-mv-exp="${i}" data-dir="1" ${i===n-1?"disabled":""} title="Descendre" aria-label="Descendre">↓</button>
+          <button type="button" class="remove-btn" data-rm-exp="${i}" title="Supprimer" aria-label="Supprimer">×</button>
         </span></div>
       <label class="field"><span class="lab">Poste / stage</span><input type="text" data-exp="${i}" data-f="poste" value="${esc(e.poste)}" placeholder="${esc(exemples.exp.poste)}"></label>
       <label class="field"><span class="lab">Entreprise, ville</span><input type="text" data-exp="${i}" data-f="entreprise" value="${esc(e.entreprise)}" placeholder="${esc(exemples.exp.entreprise)}"></label>
@@ -120,9 +121,9 @@ function buildFormList(){
     <div class="repeat-item">
       <div class="item-head"><span class="item-num">Formation ${i+1}</span>
         <span class="item-tools">
-          <button type="button" class="mv-btn" data-mv-form="${i}" data-dir="-1" ${i===0?"disabled":""} title="Monter">↑</button>
-          <button type="button" class="mv-btn" data-mv-form="${i}" data-dir="1" ${i===n-1?"disabled":""} title="Descendre">↓</button>
-          <button type="button" class="remove-btn" data-rm-form="${i}" title="Supprimer">×</button>
+          <button type="button" class="mv-btn" data-mv-form="${i}" data-dir="-1" ${i===0?"disabled":""} title="Monter" aria-label="Monter">↑</button>
+          <button type="button" class="mv-btn" data-mv-form="${i}" data-dir="1" ${i===n-1?"disabled":""} title="Descendre" aria-label="Descendre">↓</button>
+          <button type="button" class="remove-btn" data-rm-form="${i}" title="Supprimer" aria-label="Supprimer">×</button>
         </span></div>
       <label class="field"><span class="lab">Diplôme / classe</span><input type="text" data-form="${i}" data-f="diplome" value="${esc(f.diplome)}" placeholder="${esc(exemples.form.diplome)}"></label>
       <label class="field"><span class="lab">Établissement, ville</span><input type="text" data-form="${i}" data-f="etablissement" value="${esc(f.etablissement)}" placeholder="${esc(exemples.form.etablissement)}"></label>
@@ -148,7 +149,9 @@ function wireForm(){
   document.getElementById("btn-photo").onclick=()=>document.getElementById("photo-input").click();
   document.getElementById("photo-input").onchange=handlePhoto;
   document.getElementById("btn-photo-crop").onclick=ouvrirEditeurPhoto;
-  document.getElementById("photo-holder").onclick=ouvrirEditeurPhoto;
+  const ph=document.getElementById("photo-holder");
+  ph.onclick=ouvrirEditeurPhoto; ph.tabIndex=0; ph.setAttribute("role","button"); 
+  ph.onkeydown=e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); ouvrirEditeurPhoto(); } };
   document.getElementById("btn-photo-del").onclick=()=>{data.photo="";data.photoOrig="";data.photoCrop=null;renderPhotoHolder();markModifie();render();};
 }
 // câblage de l'onglet Personnalisation
@@ -198,15 +201,21 @@ function handlePhoto(e){
 function buildTemplateBar(){
   const bar=document.getElementById("template-bar");
   bar.innerHTML=templates.map(t=>`<button class="tpl-chip ${t.id===currentTemplate?"active":""}" data-tpl="${t.id}">${t.name}</button>`).join("")
-    +`<span class="zoom-ctl">Zoom <button id="z-">-</button><b id="zv">${zoom}%</b><button id="z+">+</button></span>`;
+    +`<span class="zoom-ctl">Zoom <button id="z-" aria-label="Dézoomer l'aperçu">-</button><b id="zv" aria-live="polite">${zoom}%</b><button id="z+" aria-label="Zoomer l'aperçu">+</button></span>`;
   bar.querySelectorAll("[data-tpl]").forEach(b=>b.onclick=()=>{currentTemplate=b.dataset.tpl;try{localStorage.setItem("cv-modele",currentTemplate);}catch(e){}buildTemplateBar();render();});
   document.getElementById("z-").onclick=()=>{zoom=Math.max(30,zoom-10);applyZoom();buildTemplateBar();};
   document.getElementById("z+").onclick=()=>{zoom=Math.min(120,zoom+10);applyZoom();buildTemplateBar();};
 }
-function applyZoom(){document.getElementById("sheet-wrap").style.transform=`scale(${zoom/100})`;}
+function applyZoom(){
+  const w=document.getElementById("sheet-wrap"), k=zoom/100;
+  w.style.transform=`scale(${k})`;
+  // la feuille réduite garde sa taille d'origine dans la mise en page : on retire l'espace vide en dessous
+  w.style.marginBottom=(-(w.offsetHeight*(1-k)))+"px";
+  w.style.marginRight=w.style.marginLeft="";
+}
 
 /* ---------- APERÇUS (fidèles aux pptx) ---------- */
-function photoBox(cls){ const ps=imgSure(data.photo); return ps?`<img class="cv-photo ${cls}" src="${ps}" title="Clique pour recadrer la photo">`:`<div class="ph ${cls}" title="Clique pour ajouter une photo">PHOTO</div>`; }
+function photoBox(cls){ const ps=imgSure(data.photo); return ps?`<img class="cv-photo ${cls}" src="${ps}" alt="Photo du CV" title="Clique pour recadrer la photo">`:`<div class="ph ${cls}" title="Clique pour ajouter une photo">PHOTO</div>`; }
 function contact(sep){ // sep = "row" (icônes en ligne) ou "col" (en colonne)
   const c=[["tel",v("tel")],["mail",v("email")],["ville",v("ville")]];
   if(data.permis && data.permis.trim()) c.push(["permis",data.permis]); // permis seulement si rempli

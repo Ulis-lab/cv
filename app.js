@@ -35,12 +35,14 @@ function confirmerExport(){
       +(exemple.length?'<p style="font-size:13px">Ces parties sont vides, elles afficheront un <b>texte d\'exemple</b> :</p>'+liste(exemple):'')
       +'<div class="pm-actions" style="justify-content:flex-end"><button type="button" id="ce-non">Exporter quand même</button><button type="button" id="ce-oui" class="primary">Je complète</button></div></div>';
     document.body.appendChild(ov);
-    const fin=ok=>{ document.removeEventListener("keydown",kd); ov.remove(); res(ok); };
+    const fin=ok=>{ document.removeEventListener("keydown",kd); if(ov.liberer) ov.liberer(); ov.remove(); res(ok); };
     const kd=e=>{ if(e.key==="Escape") fin(false); };
     document.addEventListener("keydown",kd);
     ov.querySelector("#ce-oui").onclick=()=>fin(false);
     ov.querySelector("#ce-non").onclick=()=>fin(true);
+    const liberer=piegeFocus(ov);
     ov.querySelector("#ce-oui").focus();
+    ov.liberer=liberer;
   });
 }
 // PDF / impression : on ré-affiche l'aperçu SANS faux exemples de contact, puis on remet comme avant
@@ -106,7 +108,7 @@ document.getElementById("load-input").onchange=e=>{
 
 function flash(msg){
   const d=document.createElement("div");
-  d.textContent=msg;
+  d.textContent=msg; d.setAttribute("role","status"); d.setAttribute("aria-live","polite");
   d.style.cssText="position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1e8e5a;color:#fff;padding:10px 20px;border-radius:8px;font-weight:600;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,.2)";
   document.body.appendChild(d);setTimeout(()=>d.remove(),2200);
 }
@@ -124,6 +126,7 @@ try{ if(localStorage.getItem("cv-theme")==="dark") document.body.setAttribute("d
 document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
   document.querySelectorAll(".tab").forEach(x=>x.classList.remove("active"));
   t.classList.add("active");
+  document.querySelectorAll(".tab").forEach(x=>x.setAttribute("aria-selected",x===t?"true":"false"));
   const cible=t.dataset.tab;
   document.getElementById("tab-remplir").style.display = cible==="remplir"?"":"none";
   document.getElementById("tab-perso").style.display = cible==="perso"?"":"none";
@@ -136,6 +139,20 @@ function markSauve(){ modifie=false; if(window.cvApp&&window.cvApp.setModifie) w
 
 // mémoriser le dernier modèle choisi
 try{ const m=localStorage.getItem("cv-modele"); if(modeleValide(m)) currentTemplate=m; }catch(e){}
+
+// ===== MOBILE : bascule Formulaire / Aperçu + aperçu cadré sur la largeur de l'écran =====
+function choisirVue(apercu){
+  document.body.classList.toggle("vue-apercu",apercu);
+  document.getElementById("vue-form").setAttribute("aria-pressed",apercu?"false":"true");
+  document.getElementById("vue-apercu").setAttribute("aria-pressed",apercu?"true":"false");
+  window.scrollTo(0,0);
+  if(apercu) setTimeout(applyZoom,0);
+}
+document.getElementById("vue-form").onclick=()=>choisirVue(false);
+document.getElementById("vue-apercu").onclick=()=>choisirVue(true);
+let _rz=0;
+window.addEventListener("resize",()=>{ clearTimeout(_rz); _rz=setTimeout(()=>{ if(zoomAuto()){ buildTemplateBar(); applyZoom(); } },150); });
+zoomAuto();
 
 buildForm(); buildTemplateBar(); render();
 cablerEditeurPhoto(); // clic sur la photo de l'aperçu → recadrage

@@ -78,11 +78,11 @@ function _peEnsure(){
   const ov = document.createElement("div");
   ov.id = "photo-modal"; ov.className = "pm-overlay"; ov.style.display = "none";
   ov.innerHTML = `
-    <div class="pm-box" role="dialog" aria-label="Recadrer la photo">
-      <h3>Recadrer la photo</h3>
-      <div class="pm-view" id="pm-view"><img id="pm-img" alt="" draggable="false"><div class="pm-mask" id="pm-mask"></div></div>
-      <div class="pm-zoom"><span>−</span><input type="range" id="pm-range" min="100" max="${PHOTO_ZMAX * 100}" step="1" value="100"><span>+</span></div>
-      <small class="pm-hint">Glisse la photo pour la déplacer · curseur ou molette pour zoomer</small>
+    <div class="pm-box" role="dialog" aria-modal="true" aria-labelledby="pm-titre">
+      <h3 id="pm-titre">Recadrer la photo</h3>
+      <div class="pm-view" id="pm-view" tabindex="0" role="group" aria-label="Zone de cadrage : flèches pour déplacer, plus et moins pour zoomer"><img id="pm-img" alt="" draggable="false"><div class="pm-mask" id="pm-mask"></div></div>
+      <div class="pm-zoom"><span>−</span><input type="range" id="pm-range" aria-label="Zoom" min="100" max="${PHOTO_ZMAX * 100}" step="1" value="100"><span>+</span></div>
+      <small class="pm-hint">Glisse la photo pour la déplacer · curseur ou molette pour zoomer · au clavier : flèches et + / −</small>
       <div class="pm-actions">
         <div class="pm-left">
           <button type="button" id="pm-change">Changer d'image</button>
@@ -117,6 +117,17 @@ function _peEnsure(){
   const fin = () => { drag = null; _pe.view.classList.remove("drag"); };
   _pe.view.addEventListener("pointerup", fin);
   _pe.view.addEventListener("pointercancel", fin);
+  // --- clavier : flèches = déplacer, + / - = zoomer ---
+  _pe.view.addEventListener("keydown", e => {
+    if(!_pst) return;
+    const pas = (e.shiftKey ? 30 : 8) / _peScale();
+    if(e.key === "ArrowLeft") _pst.cx -= pas; else if(e.key === "ArrowRight") _pst.cx += pas;
+    else if(e.key === "ArrowUp") _pst.cy -= pas; else if(e.key === "ArrowDown") _pst.cy += pas;
+    else if(e.key === "+" || e.key === "=") { _peSetZoom(_pst.z * 1.1); e.preventDefault(); return; }
+    else if(e.key === "-" || e.key === "_") { _peSetZoom(_pst.z / 1.1); e.preventDefault(); return; }
+    else return;
+    e.preventDefault(); _peClamp(); _pePaint();
+  });
   // --- zoom molette + curseur ---
   _pe.view.addEventListener("wheel", e => {
     e.preventDefault();
@@ -179,9 +190,11 @@ function _peValider(){
   renderPhotoHolder(); markModifie(); render();
 }
 
+let _peLiberer = null;
 function photoFermerEditeur(){
   if(_pe) _pe.ov.style.display = "none";
   _pst = null;
+  if(_peLiberer){ _peLiberer(); _peLiberer = null; } // rend le focus au bouton qui avait ouvert la fenêtre
 }
 
 /* ---- point d'entrée : clic sur une photo (aperçu ou formulaire) ----
@@ -193,8 +206,11 @@ function ouvrirEditeurPhoto(){
   const img = new Image();
   img.onload = () => {
     m.mask.style.borderRadius = (formePhotoEffective() === "carre") ? "14%" : "50%";
+    if(_peLiberer) _peLiberer();
+    _peLiberer = piegeFocus(m.ov);
     m.ov.style.display = "flex";
     _peInit(src, img, data.photoOrig ? data.photoCrop : null);
+    m.view.focus();
   };
   img.onerror = () => alert("Impossible d'ouvrir la photo pour la recadrer.");
   img.src = src;
