@@ -49,12 +49,55 @@ const ICO = {
   permis:'<svg class="ico" viewBox="0 0 640 512" fill="currentColor"><path d="M171.3 96H224v96H111.3l30.4-75.9C146.5 104 158.2 96 171.3 96zM272 192V96h81.2c9.7 0 18.9 4.4 25 12l67.2 84H272zm256.2 1L428.2 68c-18.2-22.8-45.8-36-75-36H171.3c-39.3 0-74.6 23.9-89.1 60.3L40.6 196.4C16.8 205.8 0 228.9 0 256V368c0 17.7 14.3 32 32 32H65.3c7.6 45.4 47.1 80 94.7 80s87.1-34.6 94.7-80H385.3c7.6 45.4 47.1 80 94.7 80s87.1-34.6 94.7-80H608c17.7 0 32-14.3 32-32V320c0-65.2-48.8-119-111.8-127zM160 464a48 48 0 1 1 0-96 48 48 0 1 1 0 96zm320 0a48 48 0 1 1 0-96 48 48 0 1 1 0 96z"/></svg>'
 };
 
-function esc(s){return (s||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+// échappe TOUT ce qui peut casser du HTML, y compris les guillemets (sinon un texte peut sortir d'un attribut value="...")
+function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");}
+
+/* ---------- VALIDATION (sécurité) : on ne fait confiance à aucune donnée venant d'un fichier ---------- */
+const RE_IMG=/^data:image\/(jpeg|png);base64,[A-Za-z0-9+\/]+={0,2}$/;
+// photo : uniquement une vraie image jpeg/png en data-URL (sinon rien)
+function imgSure(s){ return (typeof s==="string" && s.length<8000000 && RE_IMG.test(s)) ? s : ""; }
+// couleur : uniquement #rrggbb
+function couleurSure(c){ return (typeof c==="string" && /^#[0-9a-fA-F]{6}$/.test(c)) ? c : ""; }
+// nombre borné
+function nombreSur(n,min,max,def){ n=Number(n); return isFinite(n) ? Math.min(max,Math.max(min,n)) : def; }
+// reconstruit un objet "data" propre à partir d'un fichier : liste blanche de champs, types et tailles vérifiés
+function nettoyerData(o){
+  const d=JSON.parse(JSON.stringify(defaultData));
+  if(!o || typeof o!=="object") return d;
+  const txt=(x,max)=>typeof x==="string" ? x.slice(0,max) : "";
+  ["prenom","nom","metier","tel","email","ville","naissance","permis"].forEach(k=>{ d[k]=txt(o[k],200); });
+  d.profil=txt(o.profil,3000);
+  d.photo=imgSure(o.photo);
+  d.photoOrig=d.photo ? imgSure(o.photoOrig) : "";
+  const c=o.photoCrop;
+  d.photoCrop=(d.photoOrig && c && typeof c==="object") ? {z:nombreSur(c.z,1,4,1),cx:nombreSur(c.cx,0,1,0.5),cy:nombreSur(c.cy,0,1,0.5)} : null;
+  const tab=(a,max)=>Array.isArray(a)?a.slice(0,max):[];
+  const exps=tab(o.experiences,12).filter(e=>e&&typeof e==="object").map(e=>({poste:txt(e.poste,200),entreprise:txt(e.entreprise,200),dates:txt(e.dates,100),taches:txt(e.taches,3000)}));
+  if(exps.length) d.experiences=exps;
+  const fos=tab(o.formations,12).filter(f=>f&&typeof f==="object").map(f=>({diplome:txt(f.diplome,200),etablissement:txt(f.etablissement,200),dates:txt(f.dates,100),details:txt(f.details,500)}));
+  if(fos.length) d.formations=fos;
+  ["competences","langues","interets"].forEach(k=>{ d[k]=tab(o[k],30).filter(x=>typeof x==="string").map(x=>x.slice(0,200)); });
+  d.scaleName=nombreSur(o.scaleName,50,150,100); d.scaleTitle=nombreSur(o.scaleTitle,50,150,100); d.scaleBody=nombreSur(o.scaleBody,70,140,100);
+  d.couleur=couleurSure(o.couleur);
+  d.police=(typeof POLICES!=="undefined" && POLICES.some(p=>p.id===o.police)) ? o.police : "";
+  d.formePhoto=(o.formePhoto==="rond"||o.formePhoto==="carre") ? o.formePhoto : "";
+  return d;
+}
+// l'id de modèle doit être l'un des modèles connus (évite "__proto__", "constructor"...)
+function modeleValide(id){ return typeof id==="string" && templates.some(t=>t.id===id); }
+
+// mode export : pendant PDF/impression, les infos de contact vides ne montrent PAS d'exemple
+let modeExport=false;
+const SANS_EXEMPLE_EXPORT=["metier","tel","email","ville"];
 function nl2br(t){return esc(t).replace(/\n/g,"<br>");}
 function items(t){return (t||"").split("\n").map(x=>x.trim()).filter(Boolean);}
 function liToHtml(t){const l=items(t);return l.length?"<ul>"+l.map(x=>"<li>"+esc(x)+"</li>").join("")+"</ul>":"";}
 // valeur réelle si remplie, sinon l'exemple (pour que le CV ne soit jamais vide)
-function v(cle){ return (data[cle] && String(data[cle]).trim()) ? data[cle] : (exemples[cle]||""); }
+function v(cle){
+  if(data[cle] && String(data[cle]).trim()) return data[cle];
+  if(modeExport && SANS_EXEMPLE_EXPORT.indexOf(cle)>=0) return "";
+  return exemples[cle]||"";
+}
 // liste réelle si remplie, sinon liste d'exemple
 function vListe(cle){ return (data[cle] && data[cle].length) ? data[cle] : items(exemples[cle]); }
 // expériences réelles si au moins une remplie, sinon l'exemple

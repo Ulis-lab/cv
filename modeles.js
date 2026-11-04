@@ -13,12 +13,17 @@
     return (txt || "").split("\n").map(t => t.trim()).filter(Boolean);
   }
   function val(v, def) { return (v && String(v).trim()) ? v : def; }
+  // contacts à imprimer : uniquement ceux qui sont remplis (pas de faux exemple)
+  function contactItems(d) {
+    const it = [["tel", d.tel], ["mail", d.email], ["ville", d.ville]];
+    if (d.permis && String(d.permis).trim()) it.push(["permis", d.permis]);
+    return it.filter(x => x[1] && String(x[1]).trim());
+  }
 
   // contacts en colonne (icône + texte)
   async function contactsColonne(s, pptx, H, x, y, w, cIcone, cTexte, d, taille) {
     taille = taille || 10;
-    const items = [["tel", val(d.tel, "06 12 34 56 78")], ["mail", val(d.email, "email@exemple.com")], ["ville", val(d.ville, "Ville")]];
-    if (d.permis && String(d.permis).trim()) items.push(["permis", d.permis]);
+    const items = contactItems(d);
     const ic = 0.15;
     for (const [type, txt] of items) {
       const img = await H.icone(type, cIcone);
@@ -32,8 +37,7 @@
   async function contactsLigne(s, pptx, H, x, y, cIcone, cTexte, d, taille, maxW) {
     taille = taille || 10;
     maxW = maxW || 6.0; // largeur max avant retour à la ligne
-    const items = [["tel", val(d.tel, "06 12 34 56 78")], ["mail", val(d.email, "email@exemple.com")], ["ville", val(d.ville, "Ville")]];
-    if (d.permis && String(d.permis).trim()) items.push(["permis", d.permis]);
+    const items = contactItems(d);
     const ic = 0.15;
     let cx = x, cy = y;
     for (const [type, txt] of items) {
@@ -51,8 +55,7 @@
   // contacts en grille fixe 2 colonnes (col2 toujours alignée verticalement)
   async function contactsGrille(s, pptx, H, x, y, colW, cIcone, cTexte, d, taille) {
     taille = taille || 9.5;
-    const items = [["tel", val(d.tel, "06 12 34 56 78")], ["mail", val(d.email, "email@exemple.com")], ["ville", val(d.ville, "Ville")]];
-    if (d.permis && String(d.permis).trim()) items.push(["permis", d.permis]);
+    const items = contactItems(d);
     const ic = 0.15, cols = 2, rowH = 0.3;
     for (let i = 0; i < items.length; i++) {
       const col = i % cols, row = Math.floor(i / cols);
@@ -120,7 +123,7 @@
     pptx.layout = "A4P";
 
     const NOM = (val(d.prenom, "Prénom") + " " + val(d.nom, "Nom")).trim();
-    const METIER = val(d.metier, "Intitulé de la formation ou du métier visé");
+    const METIER = (d.metier && String(d.metier).trim()) ? d.metier : "";
     const PROFIL = val(d.profil, "Quelques phrases pour te présenter : qui tu es, ce que tu recherches et ce qui te motive.");
     const COMP = liste(d, "competences", ["Compétence 1", "Compétence 2", "Compétence 3"]);
     const LANG = liste(d, "langues", ["Français — maternelle", "Anglais — niveau B1"]);
@@ -254,7 +257,7 @@
       let y = 2.7;
       const h3 = (t) => { s.addText(t.toUpperCase(), { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 12, bold: true, color: "FFFFFF", fontFace: "Arial", margin: 0 }); s.addShape(S.line, { x: 0.35, y: y + 0.32, w: SIDE - 0.7, h: 0, line: { color: LIGHT, width: 1 } }); y += 0.5; };
       const tx = (t) => { s.addText(t, { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 10, color: "FFFFFF", fontFace: "Arial", margin: 0 }); y += 0.32; };
-      h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "D9E2F3", "FFFFFF", d);
+      if (contactItems(d).length) { h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "D9E2F3", "FFFFFF", d); }
       y += 0.2; h3("Compétences"); COMP.forEach(c => tx("•  " + c));
       y += 0.2; h3("Langues"); LANG.forEach(l => tx(l));
       y += 0.2; h3("Centres d'intérêt"); INT.forEach(i => tx("•  " + i));
@@ -338,7 +341,7 @@
       let y = 2.7;
       const h3 = (t) => { s.addText(t.toUpperCase(), { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 12, bold: true, color: YELLOW, fontFace: "Arial", margin: 0 }); y += 0.42; };
       const tx = (t) => { s.addText(t, { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 10, color: "FFFFFF", fontFace: "Arial", margin: 0 }); y += 0.32; };
-      h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "F2C14E", "FFFFFF", d);
+      if (contactItems(d).length) { h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "F2C14E", "FFFFFF", d); }
       y += 0.25; h3("Compétences"); COMP.forEach(c => tx("•  " + c));
       y += 0.25; h3("Langues"); LANG.forEach(l => tx(l));
       y += 0.25; h3("Centres d'intérêt"); INT.forEach(i => tx("•  " + i));
@@ -362,7 +365,7 @@
       let y = 2.7;
       const h3 = (t) => { s.addText(t.toUpperCase(), { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 12, bold: true, color: LAV_DARK, fontFace: "Arial", margin: 0 }); y += 0.42; };
       const tx = (t) => { s.addText(t, { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 10, color: INK, fontFace: "Arial", margin: 0 }); y += 0.32; };
-      h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "9B86C9", INK, d);
+      if (contactItems(d).length) { h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "9B86C9", INK, d); }
       y += 0.25; h3("Compétences"); COMP.forEach(c => tx("•  " + c));
       y += 0.25; h3("Langues"); LANG.forEach(l => tx(l));
       y += 0.25; h3("Centres d'intérêt"); INT.forEach(i => tx("•  " + i));
@@ -428,7 +431,7 @@
       let y = 2.7;
       const h3 = (t) => { s.addText(t.toUpperCase(), { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 12, bold: true, color: "FFFFFF", fontFace: "Arial", margin: 0 }); y += 0.42; };
       const tx = (t) => { s.addText(t, { x: 0.35, y, w: SIDE - 0.7, h: 0.3, fontSize: 10, color: "FFFFFF", fontFace: "Arial", margin: 0 }); y += 0.32; };
-      h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "FFFFFF", "FFFFFF", d);
+      if (contactItems(d).length) { h3("Contact"); y = await contactsColonne(s, pptx, H, 0.35, y, SIDE - 0.7, "FFFFFF", "FFFFFF", d); }
       y += 0.25; h3("Compétences"); COMP.forEach(c => tx("•  " + c));
       y += 0.25; h3("Langues"); LANG.forEach(l => tx(l));
       y += 0.25; h3("Centres d'intérêt"); INT.forEach(i => tx("•  " + i));

@@ -40,6 +40,7 @@ function photoRecadree(img, crop){
 function photoDepuisFichier(file, cb){
   if(!file) return;
   if(file.type && file.type.indexOf("image/") !== 0){ alert("Ce fichier n'est pas une image. Choisis un fichier .jpg ou .png."); return; }
+  if(file.size > 25 * 1024 * 1024){ alert("Cette image est trop lourde (25 Mo maximum). Choisis une image plus petite."); return; }
   const r = new FileReader();
   r.onload = ev => {
     const img = new Image();
@@ -186,9 +187,9 @@ function photoFermerEditeur(){
 /* ---- point d'entrée : clic sur une photo (aperçu ou formulaire) ----
    pas de photo → ouvre le choix de fichier ; sinon → ouvre l'éditeur */
 function ouvrirEditeurPhoto(){
-  if(!data.photo && !data.photoOrig){ document.getElementById("photo-input").click(); return; }
+  if(!imgSure(data.photo) && !imgSure(data.photoOrig)){ document.getElementById("photo-input").click(); return; }
   const m = _peEnsure();
-  const src = data.photoOrig || data.photo; // anciens fichiers : on retombe sur la photo déjà recadrée
+  const src = imgSure(data.photoOrig) || imgSure(data.photo); // anciens fichiers : on retombe sur la photo déjà recadrée
   const img = new Image();
   img.onload = () => {
     m.mask.style.borderRadius = (formePhotoEffective() === "carre") ? "14%" : "50%";

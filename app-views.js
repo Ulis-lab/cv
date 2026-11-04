@@ -34,11 +34,11 @@ function buildFormRemplir(){
     <div id="form-list"></div>
     <button type="button" class="add-btn" id="add-form">+ Ajouter une formation</button>
     <h2>Mes compétences</h2>
-    <label class="field"><span class="lab">Une par ligne</span><textarea data-list="competences" placeholder="${esc(exemples.competences)}">${data.competences.join("\n")}</textarea></label>
+    <label class="field"><span class="lab">Une par ligne</span><textarea data-list="competences" placeholder="${esc(exemples.competences)}">${esc(data.competences.join("\n"))}</textarea></label>
     <h2>Langues</h2>
-    <label class="field"><span class="lab">Une par ligne</span><textarea data-list="langues" placeholder="${esc(exemples.langues)}">${data.langues.join("\n")}</textarea></label>
+    <label class="field"><span class="lab">Une par ligne</span><textarea data-list="langues" placeholder="${esc(exemples.langues)}">${esc(data.langues.join("\n"))}</textarea></label>
     <h2>Loisirs / centres d'intérêt</h2>
-    <label class="field"><span class="lab">Un par ligne</span><textarea data-list="interets" placeholder="${esc(exemples.interets)}">${data.interets.join("\n")}</textarea></label>
+    <label class="field"><span class="lab">Un par ligne</span><textarea data-list="interets" placeholder="${esc(exemples.interets)}">${esc(data.interets.join("\n"))}</textarea></label>
   `;
   renderPhotoHolder(); buildExpList(); buildFormList(); wireForm();
 }
@@ -62,7 +62,7 @@ function buildFormPerso(){
     <h2>Couleur du CV</h2>
     <label class="field"><span class="lab">Couleur principale du modèle</span>
       <div style="display:flex;gap:10px;align-items:center">
-        <input type="color" id="cv-couleur" value="${data.couleur||"#2f5aa8"}" style="width:50px;height:38px;border:1px solid var(--ui-border);border-radius:8px;cursor:pointer;background:none">
+        <input type="color" id="cv-couleur" value="${couleurSure(data.couleur)||"#2f5aa8"}" style="width:50px;height:38px;border:1px solid var(--ui-border);border-radius:8px;cursor:pointer;background:none">
         <button type="button" id="cv-couleur-reset" style="font-size:12px">Couleur d'origine</button>
       </div>
       <small style="color:var(--ui-muted);font-size:11px">Laisse vide pour garder la couleur d'origine du modèle choisi.</small>
@@ -84,17 +84,18 @@ function buildFormPerso(){
     </label>
 
     <h2>Taille du texte</h2>
-    <label class="field"><span class="lab">Nom & Prénom : <b id="val-name">${data.scaleName}%</b></span>
-      <input type="range" id="sc-name" min="50" max="150" step="5" value="${data.scaleName}" style="width:100%"></label>
-    <label class="field"><span class="lab">Titres de sections : <b id="val-title">${data.scaleTitle}%</b></span>
-      <input type="range" id="sc-title" min="50" max="150" step="5" value="${data.scaleTitle}" style="width:100%"></label>
-    <label class="field"><span class="lab">Texte courant : <b id="val-body">${data.scaleBody}%</b></span>
-      <input type="range" id="sc-body" min="70" max="140" step="5" value="${data.scaleBody}" style="width:100%"></label>
+    <label class="field"><span class="lab">Nom & Prénom : <b id="val-name">${nombreSur(data.scaleName,50,150,100)}%</b></span>
+      <input type="range" id="sc-name" min="50" max="150" step="5" value="${nombreSur(data.scaleName,50,150,100)}" style="width:100%"></label>
+    <label class="field"><span class="lab">Titres de sections : <b id="val-title">${nombreSur(data.scaleTitle,50,150,100)}%</b></span>
+      <input type="range" id="sc-title" min="50" max="150" step="5" value="${nombreSur(data.scaleTitle,50,150,100)}" style="width:100%"></label>
+    <label class="field"><span class="lab">Texte courant : <b id="val-body">${nombreSur(data.scaleBody,70,140,100)}%</b></span>
+      <input type="range" id="sc-body" min="70" max="140" step="5" value="${nombreSur(data.scaleBody,70,140,100)}" style="width:100%"></label>
   `;
   wirePerso();
 }
 function renderPhotoHolder(){
-  document.getElementById("photo-holder").innerHTML = data.photo?`<img class="photo-preview" src="${data.photo}" title="Clique pour recadrer">`:`<div class="photo-empty">Aucune</div>`;
+  const ps=imgSure(data.photo);
+  document.getElementById("photo-holder").innerHTML = ps?`<img class="photo-preview" src="${ps}" title="Clique pour recadrer">`:`<div class="photo-empty">Aucune</div>`;
   const bc=document.getElementById("btn-photo-crop"); if(bc) bc.style.display=data.photo?"":"none";
 }
 function buildExpList(){
@@ -205,7 +206,7 @@ function buildTemplateBar(){
 function applyZoom(){document.getElementById("sheet-wrap").style.transform=`scale(${zoom/100})`;}
 
 /* ---------- APERÇUS (fidèles aux pptx) ---------- */
-function photoBox(cls){ return data.photo?`<img class="cv-photo ${cls}" src="${data.photo}" title="Clique pour recadrer la photo">`:`<div class="ph ${cls}" title="Clique pour ajouter une photo">PHOTO</div>`; }
+function photoBox(cls){ const ps=imgSure(data.photo); return ps?`<img class="cv-photo ${cls}" src="${ps}" title="Clique pour recadrer la photo">`:`<div class="ph ${cls}" title="Clique pour ajouter une photo">PHOTO</div>`; }
 function contact(sep){ // sep = "row" (icônes en ligne) ou "col" (en colonne)
   const c=[["tel",v("tel")],["mail",v("email")],["ville",v("ville")]];
   if(data.permis && data.permis.trim()) c.push(["permis",data.permis]); // permis seulement si rempli
@@ -213,6 +214,8 @@ function contact(sep){ // sep = "row" (icônes en ligne) ou "col" (en colonne)
   if(sep==="row") return cc.map(([t,val])=>`<span>${ICO[t]}${esc(val)}</span>`).join("");
   return cc.map(([t,val])=>`<div class="ln">${ICO[t]}${esc(val)}</div>`).join("");
 }
+// titre "Contact" + lignes ; rien du tout si aucune info de contact (mode export)
+function contactBloc(){ const c=contact("col"); return c?"<h3>Contact</h3>"+c:""; }
 function expHtml(){const ex=vExp();
   return ex.map(e=>`<div class="cv-entry"><div class="row"><span class="ttl">${esc(e.poste||exemples.exp.poste)}</span><span class="dt">${esc(e.dates||exemples.exp.dates)}</span></div><div class="sub">${esc(e.entreprise||exemples.exp.entreprise)}</div>${liToHtml(e.taches||exemples.exp.taches)}</div>`).join("");}
 function formHtml(){const fs=vForm();
@@ -221,7 +224,7 @@ function sideUl(arr){return "<ul style='margin-left:4mm'>"+arr.map(x=>`<li style
 
 const R = {
   m1:()=>`<div class="twocol"><div class="col-side">${photoBox("ph-photo")}
-    <h3>Contact</h3>${contact("col")}
+    ${contactBloc()}
     <h3>Compétences</h3>${sideUl(vListe("competences"))}
     <h3>Langues</h3>${sideUl(vListe("langues"))}
     <h3>Centres d'intérêt</h3>${sideUl(vListe("interets"))}</div>
@@ -254,14 +257,14 @@ const R = {
     <h3>Centres d'intérêt</h3><div class="compact">${vListe("interets").join("  •  ")}</div></div>`,
 
   m6:()=>`<div class="twocol"><div class="col-side">${photoBox("ph-photo")}
-    <h3>Contact</h3>${contact("col")}<h3>Compétences</h3>${sideUl(vListe("competences"))}
+    ${contactBloc()}<h3>Compétences</h3>${sideUl(vListe("competences"))}
     <h3>Langues</h3>${sideUl(vListe("langues"))}<h3>Centres d'intérêt</h3>${sideUl(vListe("interets"))}</div>
     <div class="col-main"><div class="cv-name"><span class="p">${esc(v("prenom"))}</span> <span class="n">${esc(v("nom"))}</span></div>
     <div class="role">${esc(v("metier"))}</div><h3>Profil</h3><div class="prof">${nl2br(v("profil"))}</div>
     <h3>Expérience</h3>${expHtml()}<h3>Formation</h3>${formHtml()}</div></div>`,
 
   m7:()=>`<div class="twocol"><div class="col-side">${photoBox("ph-photo")}
-    <h3>Contact</h3>${contact("col")}<h3>Compétences</h3>${sideUl(vListe("competences"))}
+    ${contactBloc()}<h3>Compétences</h3>${sideUl(vListe("competences"))}
     <h3>Langues</h3>${sideUl(vListe("langues"))}<h3>Centres d'intérêt</h3>${sideUl(vListe("interets"))}</div>
     <div class="col-main"><div class="cv-name">${esc(v("prenom"))} ${esc(v("nom"))}</div>
     <div class="role">${esc(v("metier"))}</div><h3>Profil</h3><div class="prof">${nl2br(v("profil"))}</div>
@@ -284,7 +287,7 @@ const R = {
     <h3>Centres d'intérêt</h3><div class="prof">${vListe("interets").join("  •  ")}</div></div>`,
 
   m10:()=>`<div class="twocol"><div class="col-side">${photoBox("ph-photo")}
-    <h3>Contact</h3>${contact("col")}<h3>Compétences</h3>${sideUl(vListe("competences"))}
+    ${contactBloc()}<h3>Compétences</h3>${sideUl(vListe("competences"))}
     <h3>Langues</h3>${sideUl(vListe("langues"))}<h3>Centres d'intérêt</h3>${sideUl(vListe("interets"))}</div>
     <div class="col-main"><div class="cv-name">${esc(v("prenom"))} ${esc(v("nom"))}</div>
     <div class="role">${esc(v("metier"))}</div><h3>Profil</h3><div class="prof">${nl2br(v("profil"))}</div>
@@ -334,9 +337,9 @@ function appliquerFormePhoto(){
 function appliquerCouleurApercu(sheet){
   // retire l'ancien style éventuel
   let st=document.getElementById("cv-couleur-style");
-  if(!data.couleur){ if(st) st.remove(); return; }
+  if(!couleurSure(data.couleur)){ if(st) st.remove(); return; }
   if(!st){ st=document.createElement("style"); st.id="cv-couleur-style"; document.head.appendChild(st); }
-  const c=data.couleur;
+  const c=couleurSure(data.couleur);
   // Principe : on colore les accents qui sont sur fond BLANC (titres du corps, rôle, etc.)
   // MAIS le contenu posé sur un fond coloré (colonnes .col-side, bandeaux .hd) doit rester BLANC
   // sinon il devient invisible (texte/icône de la couleur du fond).
@@ -374,13 +377,15 @@ function nomFichier(){return ((data.prenom||"CV")+"_"+(data.nom||"")).replace(/[
 // (pour que le pptx montre la même chose que l'aperçu)
 function dataPourExport(){
   const d=JSON.parse(JSON.stringify(data));
-  d.prenom=v("prenom"); d.nom=v("nom"); d.metier=v("metier");
-  d.tel=v("tel"); d.email=v("email"); d.ville=v("ville"); d.profil=v("profil");
+  d.prenom=v("prenom"); d.nom=v("nom"); d.profil=v("profil");
+  // contact + métier : si vides, on n'imprime RIEN (pas de faux exemple sur un vrai CV)
+  d.metier=(data.metier||"").trim(); d.tel=(data.tel||"").trim(); d.email=(data.email||"").trim(); d.ville=(data.ville||"").trim();
+  d.photo=imgSure(data.photo);
   d.permis=(data.permis&&data.permis.trim())?data.permis:""; // optionnel
   d.competences=vListe("competences"); d.langues=vListe("langues"); d.interets=vListe("interets");
   d.experiences=vExp().map(e=>({poste:e.poste||exemples.exp.poste,entreprise:e.entreprise||exemples.exp.entreprise,dates:e.dates||exemples.exp.dates,taches:e.taches||exemples.exp.taches}));
   d.formations=vForm().map(f=>({diplome:f.diplome||exemples.form.diplome,etablissement:f.etablissement||exemples.form.etablissement,dates:f.dates||exemples.form.dates,details:f.details||""}));
-  d.couleur=data.couleur||""; d.police=data.police||"";
+  d.couleur=couleurSure(data.couleur); d.police=data.police||"";
   delete d.photoOrig; delete d.photoCrop; // inutiles pour l'export (la photo finale est déjà recadrée)
   return d;
 }

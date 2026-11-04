@@ -24,14 +24,21 @@
     setTimeout(() => URL.revokeObjectURL(url), 10000);
   }
 
-  // Ouvre l'impression. Le titre de la page devient le nom de fichier proposé pour le PDF.
+  // Ouvre l'impression ; la promesse se termine quand la fenêtre d'impression est fermée (afterprint).
+  // Le titre de la page devient le nom de fichier proposé pour le PDF.
   function imprimer(titre){
-    const ancien = document.title;
-    if(titre) document.title = titre;
-    const fin = () => { document.title = ancien; window.removeEventListener("afterprint", fin); };
-    window.addEventListener("afterprint", fin);
-    setTimeout(fin, 120000); // sécurité si "afterprint" n'est jamais émis
-    window.print();
+    return new Promise(resolve => {
+      const ancien = document.title;
+      if(titre) document.title = titre;
+      let fini = false;
+      const fin = () => {
+        if(fini) return; fini = true;
+        document.title = ancien; window.removeEventListener("afterprint", fin); resolve();
+      };
+      window.addEventListener("afterprint", fin);
+      setTimeout(fin, 120000); // sécurité si "afterprint" n'est jamais émis
+      window.print();
+    });
   }
 
   // Petit message d'aide la 1re fois (désactivable) : quoi choisir dans la fenêtre d'impression
@@ -69,15 +76,15 @@
   window.cvApp = {
     savePptx: async (base64, suggestedName) => {
       const blob = b64ToBlob(base64, "application/vnd.openxmlformats-officedocument.presentationml.presentation");
-      telecharger(blob, (suggestedName || "CV") + ".pptx");
+      telecharger(blob, String(suggestedName || "CV").replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 80) + ".pptx");
       return { ok: true };
     },
     savePdf: async (suggestedName) => {
       const ok = await aidePdf();
-      if(ok) setTimeout(() => imprimer(suggestedName || "CV"), 50); // laisse le message disparaître avant d'imprimer
+      if(ok){ await new Promise(r => setTimeout(r, 50)); await imprimer(suggestedName || "CV"); } // laisse le message disparaître avant d'imprimer
       return { ok: false }; // pas de faux "PDF enregistré ✓" : on ne sait pas si l'utilisateur a validé
     },
-    printCv: async () => { imprimer(); return { ok: true }; },
+    printCv: async () => { await imprimer(); return { ok: true }; },
     setModifie: async (val) => { modifie = !!val; }
   };
 })();
