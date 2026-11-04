@@ -21,10 +21,18 @@ function champsManquants(){
   if(!data.formations.some(f=>f.diplome||f.etablissement||f.dates||f.details)) exemple.push("Formations");
   return {sans,exemple};
 }
+// le CV tient-il sur une page ? (PPTX : on construit vraiment le fichier pour mesurer ; PDF/impression : mesure de l'aperçu)
+async function tropLong(type){
+  try{
+    if(type==="pptx"){ const p=await construirePPTX(PptxGenJS,dataPourExport(),currentTemplate,window.cvHelpers); return p.__tient===false; }
+    return pageTropLongue;
+  }catch(_){ return false; }
+}
 // résout true (exporter) / false (je complète)
-function confirmerExport(){
+async function confirmerExport(type){
   const {sans,exemple}=champsManquants();
-  if(!sans.length && !exemple.length) return Promise.resolve(true);
+  const long=await tropLong(type);
+  if(!sans.length && !exemple.length && !long) return true;
   return new Promise(res=>{
     const ov=document.createElement("div");
     ov.className="pm-overlay"; ov.style.display="flex";
@@ -32,6 +40,7 @@ function confirmerExport(){
     ov.innerHTML='<div class="pm-box" role="dialog" aria-modal="true" aria-labelledby="ce-titre" style="width:420px">'
       +'<h3 id="ce-titre">Il manque des infos</h3>'
       +(sans.length?'<p style="font-size:13px">Ces infos sont vides, elles <b>ne seront pas sur ton CV</b> :</p>'+liste(sans):'')
+      +(long?'<p style="font-size:13px"><b>Ton CV est trop long pour une page</b> : même avec le texte réduit, il dépasse. Raccourcis quelques phrases ou retire une puce.</p>':'')
       +(exemple.length?'<p style="font-size:13px">Ces parties sont vides, elles afficheront un <b>texte d\'exemple</b> :</p>'+liste(exemple):'')
       +'<div class="pm-actions" style="justify-content:flex-end"><button type="button" id="ce-non">Exporter quand même</button><button type="button" id="ce-oui" class="primary">Je complète</button></div></div>';
     document.body.appendChild(ov);
@@ -55,7 +64,7 @@ async function avecModeExport(fn){
 }
 
 document.getElementById("btn-pptx").onclick=async()=>{
-  if(!await confirmerExport()) return;
+  if(!await confirmerExport("pptx")) return;
   const btn=document.getElementById("btn-pptx");const old=btn.textContent;
   btn.disabled=true;btn.textContent="Génération...";
   try{
@@ -68,7 +77,7 @@ document.getElementById("btn-pptx").onclick=async()=>{
   finally{btn.disabled=false;btn.textContent=old;}
 };
 document.getElementById("btn-pdf").onclick=async()=>{
-  if(!await confirmerExport()) return;
+  if(!await confirmerExport("pdf")) return;
   const btn=document.getElementById("btn-pdf");const old=btn.textContent;
   btn.disabled=true;btn.textContent="Génération...";
   try{
@@ -79,7 +88,7 @@ document.getElementById("btn-pdf").onclick=async()=>{
   finally{btn.disabled=false;btn.textContent=old;}
 };
 document.getElementById("btn-print").onclick=async()=>{
-  if(!await confirmerExport()) return;
+  if(!await confirmerExport("print")) return;
   try{ const res=await avecModeExport(()=>window.cvApp.printCv()); if(res&&!res.ok&&res.error) alert(res.error); }
   catch(e){alert("Erreur impression : "+e.message);console.error(e);}
 };
@@ -193,7 +202,7 @@ function choisirVue(apercu){
   document.getElementById("vue-form").setAttribute("aria-pressed",apercu?"false":"true");
   document.getElementById("vue-apercu").setAttribute("aria-pressed",apercu?"true":"false");
   window.scrollTo(0,0);
-  if(apercu) setTimeout(applyZoom,0);
+  if(apercu) setTimeout(render,0); // l'aperçu était caché : on le recalcule (mesure de la page) maintenant qu'il est visible
 }
 document.getElementById("vue-form").onclick=()=>choisirVue(false);
 document.getElementById("vue-apercu").onclick=()=>choisirVue(true);

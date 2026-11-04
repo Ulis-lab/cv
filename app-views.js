@@ -329,8 +329,19 @@ function render(){
   let autoBody=1; if(cf<0.75) autoBody=Math.max(0.78,0.72+(cf-0.25)*0.6);
   sheet.style.setProperty("--cf",cf);
   sheet.style.setProperty("--ab",autoBody);
+  // UNE seule page : on mesure la vraie hauteur de la feuille (A4 = 297 mm) et on resserre tant que ça dépasse
+  const hMax=297*96/25.4;
+  let pas=0;
+  while(sheet.scrollHeight>hMax+1 && pas<14){
+    pas++;
+    sheet.style.setProperty("--cf",cf*Math.pow(0.9,pas));
+    sheet.style.setProperty("--ab",Math.max(0.66,autoBody*Math.pow(0.96,pas)));
+  }
+  pageTropLongue = sheet.scrollHeight>hMax+1;
+  const al=document.getElementById("alerte-page"); if(al) al.hidden=!pageTropLongue;
   applyZoom();
 }
+let pageTropLongue=false; // vrai si le CV dépasse une page même après resserrage
 // forme effective de la photo : override perso sinon signature du modèle (m2 = carré adouci, sinon rond)
 function formePhotoEffective(){
   return (data.formePhoto==="rond"||data.formePhoto==="carre") ? data.formePhoto : (currentTemplate==="m2"?"carre":"rond");

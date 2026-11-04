@@ -100,7 +100,7 @@
     #cv-sheet, #cv-sheet * { visibility:visible !important; }
     #sheet-wrap { transform:none !important; }
     #cv-sheet { position:absolute; left:0; top:0; transform:none !important; box-shadow:none !important; margin:0; width:210mm; min-height:297mm; }
-    header.topbar,.form-panel,.template-bar { display:none !important; }
+    header.topbar,.form-panel,.template-bar,.alerte-page,.vue-bar { display:none !important; }
   }
 
 
@@ -121,6 +121,9 @@
   input:focus-visible,textarea:focus-visible,select:focus-visible { outline:3px solid #1a73e8; outline-offset:1px; }
   .pm-view:focus-visible { outline-offset:3px; }
   #photo-holder:focus-visible { border-radius:50%; }
+  .alerte-page { max-width:210mm; width:100%; background:#fff4e5; color:#7a3e00; border:1px solid #f0b36b; border-radius:var(--radius); padding:10px 14px; margin-bottom:14px; font-size:13px; font-weight:600; }
+  body[data-theme="dark"] .alerte-page { background:#3a2c14; color:#ffd9a0; border-color:#8a6420; }
+  .alerte-page[hidden] { display:none; }
   .sr-only { position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   .sr-only:focus { position:fixed; left:8px; top:8px; width:auto; height:auto; clip:auto; z-index:2000; background:#fff; color:#000; padding:8px 12px; border-radius:6px; }
   .vue-bar { display:none; }
@@ -309,7 +312,7 @@
 <body>
 <a href="#cv-sheet" class="sr-only" id="skip">Aller à l'aperçu</a>
 <header class="topbar">
-  <h1>Créateur de <span>CV</span> <small style="font-size:11px;color:var(--ui-muted);font-weight:600;">Beta 0.3.4</small></h1>
+  <h1>Créateur de <span>CV</span> <small style="font-size:11px;color:var(--ui-muted);font-weight:600;">Beta 0.3.5</small></h1>
   <div class="actions">
     <button id="btn-save">Sauvegarder</button>
     <button id="btn-load">Charger</button>
@@ -330,6 +333,7 @@
     <div id="tab-perso" class="tab-content" style="display:none"></div>
   </aside>
   <section class="preview-panel" aria-label="Aperçu du CV">
+    <div class="alerte-page" id="alerte-page" role="status" hidden>⚠ Ton CV dépasse une page, même avec le texte réduit. Raccourcis quelques phrases ou retire une puce pour qu'il tienne sur une seule page.</div>
     <div class="template-bar" id="template-bar"></div>
     <div class="sheet-wrap" id="sheet-wrap"><div class="cv-sheet" id="cv-sheet" role="document" aria-label="Aperçu de ton CV"></div></div>
   </section>

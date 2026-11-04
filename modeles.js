@@ -12,6 +12,53 @@
   function lignes(txt) {
     return (txt || "").split("\n").map(t => t.trim()).filter(Boolean);
   }
+
+  /* ---------- ESTIMATION DU NOMBRE DE LIGNES (texte qui passe à la ligne) ----------
+     Largeurs des caractères d'Arial (en 1/1000 em, identiques à Liberation Sans). Les autres polices sont
+     approchées par un coefficient, volontairement un peu large : mieux vaut un peu d'espace en trop qu'un chevauchement. */
+  const W_ARIAL = [278, 278, 355, 556, 556, 889, 667, 191, 333, 333, 389, 584, 278, 333, 278, 278, 556, 556, 556, 556, 556, 556, 556, 556, 556, 556, 278, 278, 584, 584, 584, 556, 1015, 667, 667, 722, 722, 667, 611, 778, 722, 278, 500, 667, 556, 833, 722, 778, 667, 778, 722, 667, 611, 722, 667, 944, 667, 667, 611, 278, 278, 278, 469, 556, 333, 556, 556, 500, 556, 556, 278, 556, 556, 222, 222, 500, 222, 833, 556, 556, 556, 556, 333, 500, 278, 556, 500, 722, 500, 500, 500, 334, 260, 334, 584];
+  const W_EXTRA = {"–": 556, "—": 1000, "€": 556, "°": 400, "…": 1000, "’": 222, "«": 556, "»": 556, "œ": 944, "Œ": 1000, "ç": 500, "Ç": 722, "•": 350};
+  const COEF_POLICE = { "Arial": 1, "Cambria": 1.02, "Calibri": 0.93, "Georgia": 1.12, "Verdana": 1.2, "Comic Sans MS": 1.15 };
+  function largCar(ch) {
+    const c = ch.charCodeAt(0);
+    if (c >= 32 && c <= 126) return W_ARIAL[c - 32];
+    if (W_EXTRA[ch] != null) return W_EXTRA[ch];
+    const b = ch.normalize("NFD").charAt(0); // é -> e, à -> a ...
+    const cb = b.charCodeAt(0);
+    if (cb >= 32 && cb <= 126) return W_ARIAL[cb - 32];
+    return 650; // caractère inconnu : on suppose large
+  }
+  function largMot(m) { let w = 0; for (const ch of m) w += largCar(ch); return w; }
+  // nombre de lignes pour `txt` dans une zone de `largIn` pouces, en police `pt` points
+  function nbLignes(txt, largIn, pt, police) {
+    if (!CALCUL_LIGNES) return 1;
+    const coef = (COEF_POLICE[police] || 1.1) * 1.04; // 4 % de marge de sécurité
+    const maxU = (largIn * 72 / pt) * 1000 / coef;     // largeur disponible en 1/1000 em
+    const esp = W_ARIAL[0];
+    let lignes = 1, cur = 0;
+    String(txt || "").split(/\s+/).filter(Boolean).forEach(m => {
+      const wm = largMot(m);
+      if (cur === 0) { cur = 0; }
+      const besoin = cur === 0 ? wm : cur + esp + wm;
+      if (besoin <= maxU) { cur = besoin; return; }
+      if (cur === 0 || wm > maxU) {                    // mot plus long qu'une ligne : il est coupé
+        const reste = (cur === 0 ? wm : wm);
+        lignes += (cur === 0 ? 0 : 1) + Math.max(0, Math.ceil(reste / maxU) - 1);
+        cur = reste % maxU || 0;
+      } else { lignes++; cur = wm; }
+    });
+    return lignes;
+  }
+  // contexte du rendu en cours (taille/police réelles après personnalisation), rempli par construirePPTX
+  // INTERRUPTEUR : mettre false pour revenir au calcul d'avant (Beta 0.3.4 : 1 puce = 1 ligne, pas de mesure du texte)
+  const CALCUL_LIGNES = true;
+  const _ctx = { sf: x => x, sp: x => x, hBas: null }; // hBas : bas réel du texte (centré dans sa boîte) pour la mesure "une page"
+  const LH = pt => pt * 1.2 / 72; // hauteur d'une ligne de texte, en pouces
+  // nombre de lignes EN PLUS (au-delà d'une par puce) pour une liste de puces
+  function lignesEnPlus(items, largIn, ptBase, police) {
+    const pt = _ctx.sf(ptBase), pol = _ctx.sp(police);
+    return items.reduce((a, t) => a + (nbLignes(t, largIn, pt, pol) - 1), 0);
+  }
   function val(v, def) { return (v && String(v).trim()) ? v : def; }
   // contacts à imprimer : uniquement ceux qui sont remplis (pas de faux exemple)
   function contactItems(d) {
@@ -89,8 +136,17 @@
       if (e.entreprise) { s.addText(e.entreprise, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.accent, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
       const t = lignes(e.taches);
       if (t.length) {
-        s.addText(t.map((x, i) => ({ text: x, options: { bullet: true, breakLine: i < t.length - 1 } })), { x: MX + 0.1, y: my, w: MW - 0.1, h: 0.2 + t.length * 0.22, fontSize: 10.5, color: opts.ink, fontFace: opts.font });
-        my += (0.16 + t.length * 0.2 * ab) * (opts.cf || 1) + 0.05;
+        // largeur réellement disponible : boîte (MW-0.1) - marges internes 2x0.1 - retrait de puce 0.375
+        const cfx = opts.cf || 1;
+        const lh = LH(_ctx.sf(10.5));
+        const en_plus = lignesEnPlus(t, MW - 0.1 - 0.2 - 0.375, 10.5, opts.font) * lh;  // hauteur des lignes en plus (puces longues)
+        const hTexte = t.length * lh + en_plus;                                          // hauteur réelle du texte
+        // anciennes valeurs conservées quand il y a de la place ; plancher physique quand ça se resserre (sinon chevauchement)
+        const hBoite = CALCUL_LIGNES ? Math.max(hTexte + 0.05, (0.2 + t.length * 0.22) * cfx + en_plus) : 0.2 + t.length * 0.22;
+        _ctx.hBas = hBoite / 2 + hTexte / 2;
+        s.addText(t.map((x, i) => ({ text: x, options: { bullet: true, breakLine: i < t.length - 1 } })), { x: MX + 0.1, y: my, w: MW - 0.1, h: hBoite, fontSize: 10.5, color: opts.ink, fontFace: opts.font });
+        const avance = (0.16 + t.length * 0.2 * ab) * cfx + 0.05 + en_plus;
+        my += CALCUL_LIGNES ? Math.max(avance, hBoite / 2 + hTexte / 2 + 0.05) : (0.16 + t.length * 0.2 * ab) * cfx + 0.05;
       }
       my += 0.14 * (opts.cf || 1) + 0.05;
     });
@@ -108,7 +164,15 @@
       ], { x: MX, y: my, w: MW, h: 0.3, fontSize: 11.5, fontFace: opts.font, margin: 0 });
       my += 0.27 * ab;
       if (f.etablissement) { s.addText(f.etablissement, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.accent, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
-      if (f.details) { s.addText([{ text: f.details, options: { bullet: true } }], { x: MX + 0.1, y: my, w: MW - 0.1, h: 0.25, fontSize: 10.5, color: opts.ink, fontFace: opts.font }); my += 0.25 * ab; }
+      if (f.details) {
+        const lh = LH(_ctx.sf(10.5));
+        const en_plus = lignesEnPlus([f.details], MW - 0.1 - 0.2 - 0.375, 10.5, opts.font) * lh;
+        const hTexte = lh + en_plus;
+        const hBoite = CALCUL_LIGNES ? Math.max(hTexte + 0.05, 0.25 + en_plus) : 0.25;
+        _ctx.hBas = hBoite / 2 + hTexte / 2;
+        s.addText([{ text: f.details, options: { bullet: true } }], { x: MX + 0.1, y: my, w: MW - 0.1, h: hBoite, fontSize: 10.5, color: opts.ink, fontFace: opts.font });
+        my += CALCUL_LIGNES ? Math.max(0.25 * ab + en_plus, hBoite / 2 + hTexte / 2 + 0.03) : 0.25 * ab;
+      }
       my += 0.16 * CF;
     });
     return my;
@@ -117,7 +181,8 @@
   // =====================================================================
   // Construit la présentation (1 slide) pour un modèle donné
   // =====================================================================
-  async function construirePPTX(PptxGenJS, d, templateId, H) {
+  async function construirePASSE(PptxGenJS, d, templateId, H, pas) {
+    pas = pas || 0; // nombre de resserrages supplémentaires (0 = normal) pour faire tenir le CV sur UNE page
     const pptx = new PptxGenJS();
     pptx.defineLayout({ name: "A4P", width: PW, height: PH });
     pptx.layout = "A4P";
@@ -172,7 +237,16 @@
 
     // hauteur fixe (en-tête + profil + titres de sections + listes comp/langues/intérêts)
     // ces éléments ne sont PAS compactés. On réserve large pour être sûr que ça rentre.
-    const hauteurFixe = 6.6;
+    // lignes supplémentaires dues aux puces longues (texte qui passe à la ligne) : espace NON compressible
+    const MW_EST = { m1: 4.57, m6: 4.47, m7: 4.47, m10: 4.47, m5: 6.47 }[templateId] || 6.87;
+    const policeEst = d.police || "Arial";
+    const ptEst = 10.5 * fBody;
+    const largEst = MW_EST - 0.1 - 0.2 - 0.375;
+    let lignesPlus = 0;
+    (d.experiences || []).forEach(e => { lignes(e.taches).forEach(x => { lignesPlus += nbLignes(x, largEst, ptEst, policeEst) - 1; }); });
+    (d.formations || []).forEach(f => { if (f.details) lignesPlus += nbLignes(f.details, largEst, ptEst, policeEst) - 1; });
+    const lignesProfil = nbLignes(PROFIL, MW_EST, 10.5 * fBody, policeEst);
+    const hauteurFixe = 6.6 + lignesPlus * LH(ptEst) + Math.max(0, lignesProfil - 3) * LH(ptEst);
     // hauteur "compactable" : expériences (0.65"/exp + 0.24"/tâche) + formations (0.65"/form + 0.3"/détail)
     const hExp = nExp * 0.65 + nbTaches * 0.24;
     const hForm = nForm * 0.65 + nbDetails * 0.30;
@@ -187,6 +261,7 @@
     // si vraiment très chargé, on réduit AUSSI la taille du corps de texte
     let autoBody = 1;
     if (cf < 0.75) autoBody = Math.max(0.78, 0.72 + (cf - 0.25) * 0.6);
+    if (pas > 0) { cf = cf * Math.pow(0.9, pas); autoBody = Math.max(0.66, autoBody * Math.pow(0.96, pas)); } // resserrage progressif si ça déborde
     // classe une taille de police par catégorie et applique le bon facteur
     function scaleFont(sz) {
       if (typeof sz !== "number") return sz;
@@ -207,6 +282,13 @@
       return c;
     }
     function subPolice(f) { return policePerso || f; }
+    _ctx.sf = scaleFont; _ctx.sp = subPolice;
+    // hauteur du bloc "Profil" d'après la longueur réelle du texte (pas de marge interne : margin 0)
+    function hProfil(txt, w, pt, font, hBase) {
+      const L = nbLignes(txt, w, scaleFont(pt), subPolice(font));
+      return Math.max(hBase, L * LH(scaleFont(pt)) + 0.06);
+    }
+    let bas = 0; // point le plus bas atteint par un texte (pour vérifier que tout tient sur la page)
 
     // wrappe addSlide pour intercepter addText/addShape/addImage sur chaque slide
     const _addSlide = pptx.addSlide.bind(pptx);
@@ -234,6 +316,10 @@
             return it;
           });
         }
+        if (opts && typeof opts.y === "number" && typeof opts.h === "number") {
+          if (_ctx.hBas != null) { bas = Math.max(bas, opts.y + _ctx.hBas); } else { bas = Math.max(bas, opts.y + opts.h); }
+        }
+        _ctx.hBas = null;
         return _addText(txt, opts);
       };
       // intercepter les formes pour recolorer les fonds/bandeaux d'accent
@@ -266,7 +352,7 @@
       s.addText(METIER, { x: MX, y: 1.32, w: MW, h: 0.35, fontSize: 13, italic: true, color: "555555", fontFace: "Arial", margin: 0 });
       let my = 2.0;
       const mh3 = (t) => { s.addText(t.toUpperCase(), { x: MX, y: my, w: MW, h: 0.35, fontSize: 15, bold: true, color: NAVY, fontFace: "Arial", margin: 0 }); s.addShape(S.line, { x: MX, y: my + 0.38, w: MW, h: 0, line: { color: NAVY, width: 1.5 } }); my += 0.55; };
-      mh3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.7, fontSize: 10.5, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.95;
+      mh3("Profil"); { const ph = hProfil(PROFIL, MW, 10.5, "Arial", 0.7); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 10.5, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.95 + (ph - 0.7); }
       mh3("Formation"); my = addFormations(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "262626", accent: NAVY, font: "Arial" });
       mh3("Expérience"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "333333", accent: NAVY, font: "Arial" });
     }
@@ -282,7 +368,7 @@
       await contactsGrille(s, pptx, H, 0.7, 1.31, 2.026, "F2D7CC", "FFFFFF", d, 9.5);
       const MX = 0.7, MW = PW - 1.4; let my = 2.15;
       const h3 = (t) => { s.addText(t.toUpperCase(), { x: MX, y: my, w: MW, h: 0.32, fontSize: 14, bold: true, color: ACCENT, fontFace: "Cambria", margin: 0 }); my += 0.39; };
-      h3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.5, fontSize: 11, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.64;
+      h3("Profil"); { const ph = hProfil(PROFIL, MW, 11, "Arial", 0.5); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 11, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.64 + (ph - 0.5); }
       h3("Expérience professionnelle"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "262626", accent: ACCENT, font: "Arial" });
       h3("Formation"); my = addFormations(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "262626", accent: ACCENT, font: "Arial" });
       h3("Compétences"); s.addText(COMP.join("     •     "), { x: MX, y: my, w: MW, h: 0.3, fontSize: 10.5, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.46;
@@ -304,7 +390,7 @@
       else { s.addShape(ringM4, { x: PW - 2.235, y: 1.012, w: 1.58, h: 1.58, ...rr(0.22), fill: { color: "FFFFFF" }, line: { color: "FFFFFF", width: 3 } }); s.addShape(ringM4, { x: PW - 2.165, y: 1.082, w: 1.44, h: 1.44, ...rr(0.2), fill: { color: SOFT }, line: { type: "none" } }); s.addText("PHOTO", { x: PW - 2.165, y: 1.682, w: 1.44, h: 0.3, align: "center", fontSize: 10, bold: true, color: TEAL, fontFace: "Arial" }); }
       const MX = 0.7, MW = PW - 1.4; let my = 2.24;
       const h3 = (t) => { s.addShape(S.ellipse, { x: MX, y: my + 0.02, w: 0.2, h: 0.2, fill: { color: TEAL }, line: { type: "none" } }); s.addText(t.toUpperCase(), { x: MX + 0.35, y: my - 0.05, w: MW - 0.35, h: 0.35, fontSize: 14, bold: true, color: DARK, fontFace: "Arial", margin: 0 }); my += 0.46; };
-      h3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.55, fontSize: 11, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.72;
+      h3("Profil"); { const ph = hProfil(PROFIL, MW, 11, "Arial", 0.55); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 11, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.72 + (ph - 0.55); }
       h3("Compétences");
       let cx = MX; COMP.forEach(c => { const w = 0.25 + c.length * 0.075; s.addShape(S.roundRect, { x: cx, y: my, w, h: 0.34, rectRadius: 0.17, fill: { color: SOFT }, line: { type: "none" } }); s.addText(c, { x: cx, y: my, w, h: 0.34, align: "center", valign: "middle", fontSize: 9.5, bold: true, color: TEAL, fontFace: "Arial", margin: 0 }); cx += w + 0.15; }); my += 0.62;
       h3("Expérience professionnelle"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "333333", accent: TEAL, font: "Arial" });
@@ -324,7 +410,7 @@
       await contactsLigne(s, pptx, H, 0.9, 2.62, "C9A24B", "9A9AA5", d, 9.5, 6.8);
       const MX = 0.9, MW = PW - 1.8; let my = 3.1;
       const h3 = (t) => { s.addText(t.toUpperCase(), { x: MX, y: my, w: MW, h: 0.3, fontSize: 13, bold: true, color: GOLD, charSpacing: 3, fontFace: "Cambria", margin: 0 }); s.addShape(S.line, { x: MX, y: my + 0.34, w: MW, h: 0, line: { color: "3A3A44", width: 0.75 } }); my += 0.5; };
-      h3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.5, fontSize: 11, color: LIGHT, fontFace: "Cambria", margin: 0 }); my += 0.7;
+      h3("Profil"); { const ph = hProfil(PROFIL, MW, 11, "Cambria", 0.5); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 11, color: LIGHT, fontFace: "Cambria", margin: 0 }); my += 0.7 + (ph - 0.5); }
       h3("Expérience professionnelle"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: LIGHT, accent: GOLD, font: "Cambria", italicEnt: true });
       h3("Formation"); my = addFormations(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: LIGHT, accent: GOLD, font: "Cambria", italicEnt: true });
       h3("Compétences"); s.addText(COMP.join("   •   "), { x: MX, y: my, w: MW, h: 0.3, fontSize: 10.5, color: LIGHT, fontFace: "Cambria", margin: 0 }); my += 0.46;
@@ -351,7 +437,7 @@
       s.addText(METIER, { x: MX, y: 1.9, w: MW, h: 0.35, fontSize: 12, italic: true, color: "555555", fontFace: "Arial", margin: 0 });
       let my = 2.6;
       const mh3 = (t) => { s.addShape(S.roundRect, { x: MX, y: my, w: 0.18, h: 0.3, rectRadius: 0.05, fill: { color: YELLOW }, line: { type: "none" } }); s.addText(t.toUpperCase(), { x: MX + 0.32, y: my - 0.02, w: MW - 0.32, h: 0.35, fontSize: 15, bold: true, color: PURPLE, fontFace: "Arial", margin: 0 }); my += 0.5; };
-      mh3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.6, fontSize: 10.5, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.85;
+      mh3("Profil"); { const ph = hProfil(PROFIL, MW, 10.5, "Arial", 0.6); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 10.5, color: "333333", fontFace: "Arial", margin: 0 }); my += 0.85 + (ph - 0.6); }
       mh3("Expérience"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "262626", accent: PURPLE, font: "Arial" });
       mh3("Formation"); my = addFormations(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "262626", accent: PURPLE, font: "Arial" });
     }
@@ -374,7 +460,7 @@
       s.addText(METIER, { x: MX, y: 1.4, w: MW, h: 0.35, fontSize: 12, italic: true, color: "777777", fontFace: "Arial", margin: 0 });
       let my = 2.2;
       const mh3 = (t) => { s.addShape(S.ellipse, { x: MX, y: my + 0.03, w: 0.2, h: 0.2, fill: { color: ACCENT }, line: { type: "none" } }); s.addText(t.toUpperCase(), { x: MX + 0.35, y: my - 0.04, w: MW - 0.35, h: 0.35, fontSize: 15, bold: true, color: LAV_DARK, fontFace: "Arial", margin: 0 }); my += 0.5; };
-      mh3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.6, fontSize: 10.5, color: INK, fontFace: "Arial", margin: 0 }); my += 0.85;
+      mh3("Profil"); { const ph = hProfil(PROFIL, MW, 10.5, "Arial", 0.6); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 10.5, color: INK, fontFace: "Arial", margin: 0 }); my += 0.85 + (ph - 0.6); }
       mh3("Expérience"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: INK, accent: ACCENT, font: "Arial" });
       mh3("Formation"); my = addFormations(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: INK, accent: ACCENT, font: "Arial" });
     }
@@ -390,7 +476,7 @@
       await contactsGrille(s, pptx, H, 0.7, 1.243, 1.954, "2E8B73", "5A6B66", d, 9.5);
       const MX = 0.7, MW = PW - 1.4; let my = 2.14;
       const h3 = (t) => { s.addShape(S.roundRect, { x: MX, y: my, w: 0.18, h: 0.3, rectRadius: 0.05, fill: { color: PEACH }, line: { type: "none" } }); s.addText(t.toUpperCase(), { x: MX + 0.32, y: my - 0.02, w: MW - 0.32, h: 0.35, fontSize: 14, bold: true, color: MINT_DARK, fontFace: "Arial", margin: 0 }); my += 0.46; };
-      h3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.5, fontSize: 11, color: INK, fontFace: "Arial", margin: 0 }); my += 0.72;
+      h3("Profil"); { const ph = hProfil(PROFIL, MW, 11, "Arial", 0.5); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 11, color: INK, fontFace: "Arial", margin: 0 }); my += 0.72 + (ph - 0.5); }
       h3("Compétences");
       let cx = MX; COMP.forEach(c => { const w = 0.25 + c.length * 0.075; s.addShape(S.roundRect, { x: cx, y: my, w, h: 0.34, rectRadius: 0.17, fill: { color: MINT }, line: { type: "none" } }); s.addText(c, { x: cx, y: my, w, h: 0.34, align: "center", valign: "middle", fontSize: 9.5, bold: true, color: MINT_DARK, fontFace: "Arial", margin: 0 }); cx += w + 0.15; }); my += 0.62;
       h3("Expérience professionnelle"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: INK, accent: MINT_DARK, font: "Arial" });
@@ -413,7 +499,7 @@
       await contactsGrille(s, pptx, H, 0.7, 1.28, 1.954, "EDE9FB", "FFFFFF", d, 9.5);
       const MX = 0.7, MW = PW - 1.4; let my = 2.28;
       const h3 = (t) => { s.addShape(S.ellipse, { x: MX, y: my + 0.03, w: 0.2, h: 0.2, fill: { color: ACCENT }, line: { type: "none" } }); s.addText(t.toUpperCase(), { x: MX + 0.35, y: my - 0.04, w: MW - 0.35, h: 0.35, fontSize: 14, bold: true, color: ACCENT, fontFace: "Arial", margin: 0 }); my += 0.46; };
-      h3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.5, fontSize: 11, color: INK, fontFace: "Arial", margin: 0 }); my += 0.72;
+      h3("Profil"); { const ph = hProfil(PROFIL, MW, 11, "Arial", 0.5); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 11, color: INK, fontFace: "Arial", margin: 0 }); my += 0.72 + (ph - 0.5); }
       h3("Compétences"); s.addText(COMP.join("     •     "), { x: MX, y: my, w: MW, h: 0.3, fontSize: 11, color: INK, fontFace: "Arial", margin: 0 }); my += 0.5;
       h3("Expérience professionnelle"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: INK, accent: ACCENT, font: "Arial" });
       h3("Formation"); my = addFormations(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: "262626", accent: ACCENT, font: "Arial" });
@@ -440,12 +526,23 @@
       s.addText(METIER, { x: MX, y: 1.4, w: MW, h: 0.35, fontSize: 12, italic: true, color: "777777", fontFace: "Arial", margin: 0 });
       let my = 2.2;
       const mh3 = (t) => { s.addShape(S.ellipse, { x: MX, y: my + 0.03, w: 0.2, h: 0.2, fill: { color: ACCENT }, line: { type: "none" } }); s.addText(t.toUpperCase(), { x: MX + 0.35, y: my - 0.04, w: MW - 0.35, h: 0.35, fontSize: 15, bold: true, color: ACCENT, fontFace: "Arial", margin: 0 }); my += 0.5; };
-      mh3("Profil"); s.addText(PROFIL, { x: MX, y: my, w: MW, h: 0.6, fontSize: 10.5, color: INK, fontFace: "Arial", margin: 0 }); my += 0.85;
+      mh3("Profil"); { const ph = hProfil(PROFIL, MW, 10.5, "Arial", 0.6); s.addText(PROFIL, { x: MX, y: my, w: MW, h: ph, fontSize: 10.5, color: INK, fontFace: "Arial", margin: 0 }); my += 0.85 + (ph - 0.6); }
       mh3("Expérience"); my = addExperiences(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: INK, accent: ACCENT, font: "Arial" });
       mh3("Formation"); my = addFormations(s, pptx, d, MX, MW, my, { cf, ab: autoBody, ink: INK, accent: ACCENT, font: "Arial" });
     }
 
+    pptx.__bas = bas;
     return pptx;
+  }
+
+  // Construit le CV ; s'il dépasse la page, on resserre (espaces puis taille du texte) et on recommence : toujours UNE page.
+  const BAS_MAX = PH - 0.1;
+  async function construirePPTX(PptxGenJS, d, templateId, H) {
+    let p = await construirePASSE(PptxGenJS, d, templateId, H, 0);
+    if (!CALCUL_LIGNES) return p; // ancien comportement
+    for (let pas = 1; pas <= 14 && p.__bas > BAS_MAX; pas++) p = await construirePASSE(PptxGenJS, d, templateId, H, pas);
+    p.__tient = p.__bas <= BAS_MAX;
+    return p;
   }
 
   root.construirePPTX = construirePPTX;
