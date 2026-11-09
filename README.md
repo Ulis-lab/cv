@@ -19,4 +19,4 @@ Tout se passe dans le navigateur de l'élève. Aucune information (nom, photo, e
 **Sauvegarde automatique** : le CV en cours est gardé dans le navigateur de l'ordinateur utilisé (pas sur internet) — l'indicateur « ✓ Enregistré automatiquement » le confirme. Au lancement suivant, l'appli propose de le reprendre ou de repartir de zéro. Sur un ordinateur partagé, cliquer sur « Repartir de zéro » ou « Effacer tout » avant de partir.
 
 ## Pour les curieux
-Le même code existe en application Windows portable (Electron). Seul `js/bridge/web-bridge.js` change : il remplace l'enregistrement par des téléchargements et l'impression du navigateur. Le code est rangé en petits fichiers : voir [ARCHITECTURE.md](ARCHITECTURE.md).
+Le même code peut aussi devenir une application Windows portable (Electron 45, testée au lancement) ; cette version .exe est **en pause** : la version web suffit pour l'instant. Seul `js/bridge/web-bridge.js` change : il remplace l'enregistrement par des téléchargements et l'impression du navigateur. Le code est rangé en petits fichiers : voir [ARCHITECTURE.md](ARCHITECTURE.md).
