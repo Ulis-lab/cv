@@ -11,7 +11,7 @@ function addExperiences(s, pptx, d, MX, MW, myStart, opts) {
       { text: "    " + val(e.dates, ""), options: { italic: true, color: "999999", fontSize: 9 } },
     ], { x: MX, y: my, w: MW, h: 0.3, fontSize: 11.5, fontFace: opts.font, margin: 0 });
     my += 0.27 * ab;
-    if (e.entreprise) { s.addText(e.entreprise, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.accent, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
+    if (e.entreprise) { s.addText(e.entreprise, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.italicEnt ? opts.accent : opts.ink, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
     const t = lignes(e.taches);
     if (t.length) {
       // largeur réellement disponible : boîte (MW-0.1) - marges internes 2x0.1 - retrait de puce 0.375

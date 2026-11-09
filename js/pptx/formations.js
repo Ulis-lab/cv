@@ -11,7 +11,7 @@ function addFormations(s, pptx, d, MX, MW, myStart, opts) {
       { text: "    " + val(f.dates, ""), options: { italic: true, color: "999999", fontSize: 9 } },
     ], { x: MX, y: my, w: MW, h: 0.3, fontSize: 11.5, fontFace: opts.font, margin: 0 });
     my += 0.27 * ab;
-    if (f.etablissement) { s.addText(f.etablissement, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.accent, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
+    if (f.etablissement) { s.addText(f.etablissement, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.italicEnt ? opts.accent : opts.ink, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
     if (f.details) {
       const lh = LH(_ctx.sf(10.5));
       const en_plus = lignesEnPlus([f.details], MW - 0.1 - 0.2 - 0.375, 10.5, opts.font) * lh;
