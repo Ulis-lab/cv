@@ -11,7 +11,7 @@ function createWindow() {
     height: 900,
     minWidth: 1000,
     minHeight: 650,
-    title: "Créateur de CV — Beta 0.5.0",
+    title: "Créateur de CV — Beta 0.5.1",
     icon: path.join(__dirname, "..", "assets", "icon.png"),
     webPreferences: {
       preload: path.join(__dirname, "preload.js"),

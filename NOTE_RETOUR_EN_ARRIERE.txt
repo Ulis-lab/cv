@@ -13,3 +13,7 @@ Revenir au calcul d'avant les puces longues (Beta 0.3.4) :
   -> ou sauvegardes/SAUVEGARDE_modeles_Beta0.3.4.js
 
 Voir ARCHITECTURE.md pour savoir où se trouve chaque chose.
+
+BETA 0.5.1 - mode Guide (5 etapes) + bascule Guide/Complet, habillage violet nuit, bouton jour/nuit, onglet Exporter mobile,
+correctif PDF blanc, PPTX : entreprise en noir gras et dates alignees a droite.
+Pour revenir a la version precedente : git checkout v0.4.0 (point de restauration de la Beta 0.4.0).

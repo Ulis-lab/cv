@@ -1,4 +1,4 @@
-# Architecture du Créateur de CV (Beta 0.4.0)
+# Architecture du Créateur de CV (Beta 0.5.1)
 
 Le même code sert pour **la version web** (GitHub Pages) **et l'appli Windows** (Electron).
 Il n'y a plus de gros fichiers : chaque morceau a son petit fichier, avec une ligne en haut qui dit à quoi il sert.
