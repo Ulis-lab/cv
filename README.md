@@ -2,7 +2,7 @@
 
 Un outil simple pour aider les élèves à faire leur CV : on remplit un formulaire, on choisit un modèle, on personnalise (couleur, police, forme et cadrage de la photo), puis on enregistre.
 
-**Rien à installer** : ça marche directement dans Chrome ou Edge.
+**Rien à installer** : ça marche directement dans Chrome ou Edge → https://ulis-lab.github.io/CvCreator/
 
 ## Utilisation
 - **Remplir mon CV** : le formulaire à gauche, l'aperçu à droite. Les textes grisés en italique sont des **exemples** (champ vide) ; clique sur un texte de l'aperçu pour aller directement au bon champ.
