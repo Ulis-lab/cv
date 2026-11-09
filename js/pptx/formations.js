@@ -6,10 +6,7 @@ function addFormations(s, pptx, d, MX, MW, myStart, opts) {
   const fs = (d.formations && d.formations.length) ? d.formations : [{ diplome: "Intitulé du diplôme / de la classe", etablissement: "Nom de l'établissement, Ville", dates: "2024 - 2025", details: "" }];
   const CF = opts.cf || 1;
   fs.forEach(f => {
-    s.addText([
-      { text: val(f.diplome, "Diplôme"), options: { bold: true, color: opts.ink } },
-      { text: "    " + val(f.dates, ""), options: { italic: true, color: "999999", fontSize: 9 } },
-    ], { x: MX, y: my, w: MW, h: 0.3, fontSize: 11.5, fontFace: opts.font, margin: 0 });
+    addTitreDate(s, val(f.diplome, "Diplôme"), f.dates, opts, MX, my, MW);
     my += 0.27 * ab;
     if (f.etablissement) { s.addText(f.etablissement, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.italicEnt ? opts.accent : opts.ink, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
     if (f.details) {

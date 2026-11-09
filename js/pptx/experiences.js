@@ -6,10 +6,7 @@ function addExperiences(s, pptx, d, MX, MW, myStart, opts) {
   const ab = opts.ab || 1;
   const exps = (d.experiences && d.experiences.length) ? d.experiences : [{ poste: "Intitulé du poste / stage", entreprise: "Nom de l'entreprise, Ville", dates: "MM/AAAA - MM/AAAA", taches: "Mission ou tâche réalisée\nRéussite ou compétence acquise" }];
   exps.forEach(e => {
-    s.addText([
-      { text: val(e.poste, "Poste"), options: { bold: true, color: opts.ink } },
-      { text: "    " + val(e.dates, ""), options: { italic: true, color: "999999", fontSize: 9 } },
-    ], { x: MX, y: my, w: MW, h: 0.3, fontSize: 11.5, fontFace: opts.font, margin: 0 });
+    addTitreDate(s, val(e.poste, "Poste"), e.dates, opts, MX, my, MW);
     my += 0.27 * ab;
     if (e.entreprise) { s.addText(e.entreprise, { x: MX, y: my, w: MW, h: 0.28, fontSize: 10, bold: !opts.italicEnt, italic: !!opts.italicEnt, color: opts.italicEnt ? opts.accent : opts.ink, fontFace: opts.font, margin: 0 }); my += 0.27 * ab; }
     const t = lignes(e.taches);
