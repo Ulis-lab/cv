@@ -1,0 +1,15 @@
+/* css/templates/m4.css — Aperçu du modèle m4 (doit rester synchronisé avec js/preview/templates/m4.js et js/pptx/templates/m4.js) */
+
+/* ---- m4 Teal moderne ---- */
+.m4 .hd { background:#0E7C7B; padding:0; height:2.05in; position:relative; }
+.m4 .hd .inner { padding:10mm 16mm; color:#fff; }
+.m4 .cv-name { font-size:32pt; font-weight:800; color:#fff; }
+.m4 .role { font-style:italic; color:#DEF2F1; font-size:13pt; margin-top:1.5mm; }
+.m4 .contact-row { margin-top:3mm; font-size:9.5pt; display:grid; grid-template-columns:auto auto; column-gap:8mm; row-gap:1.5mm; justify-content:start; align-items:center; color:#fff; }
+.m4 .ph-photo { width:1.44in; height:1.44in; border-radius:50%; background:#DEF2F1; border:3px solid #fff; color:#0E7C7B; position:absolute; right:0.62in; top:1.1in; }
+.m4 .bd { padding:0 16mm 12mm; margin-top:10mm; }
+.m4 .bd h3 { font-size:15pt; font-weight:800; color:#17252A; text-transform:uppercase; margin:6mm 0 3mm; display:flex; align-items:center; gap:3mm; }
+.m4 .bd h3::before { content:""; width:5mm; height:5mm; border-radius:50%; background:#0E7C7B; display:inline-block; }
+.m4 .bd h3:first-of-type { margin-top:0; }
+.m4 .tags { display:flex; flex-wrap:wrap; gap:2mm; }
+.m4 .tag { font-size:9.5pt; font-weight:700; color:#0E7C7B; background:#DEF2F1; padding:1mm 3mm; border-radius:99px; }

@@ -1,0 +1,52 @@
+/* css/preview-base.css — Aperçu du CV : base commune à tous les modèles (feuille A4, curseurs de taille, colonnes) */
+
+/* =========================================================
+   APERÇUS FIDÈLES AUX MODÈLES PPTX (m1..m10)
+   Unités en mm/pt pour coller au rendu A4 du pptx.
+   ========================================================= */
+.cv-name { font-family:Arial,sans-serif; line-height:1.06; }
+.cv-photo { object-fit:cover; display:block; }
+
+/* ===== Mise à l'échelle du texte (curseurs), surcharge avec !important ===== */
+.cv-sheet { --sc-name:1; --sc-title:1; --sc-body:1; }
+.cv-sheet .cv-name { font-size:calc(var(--name-base,26pt) * var(--sc-name)) !important; }
+.cv-sheet h3 { font-size:calc(var(--title-base,15pt) * var(--sc-title)) !important; }
+/* compactage auto : réduit l'espace au-dessus des titres quand beaucoup de contenu */
+.cv-sheet .col-main h3, .cv-sheet .bd h3, .m5 h3 { margin-top:calc(4.5mm * var(--cf,1)) !important; }
+.cv-sheet .role { font-size:calc(var(--role-base,13pt) * var(--sc-title)) !important; }
+.cv-sheet .prof, .cv-sheet .compact, .cv-sheet .cv-entry li, .cv-sheet .col-side .ln,
+.cv-sheet .cv-entry .ttl, .cv-sheet .cv-entry .sub, .cv-sheet .cv-entry .dt,
+.cv-sheet .tag, .cv-sheet .col-side li { font-size:calc(var(--body-base,10.5pt) * var(--sc-body) * var(--ab,1)) !important; }
+
+/* tailles de base propres à chaque modèle (le facteur des curseurs les multiplie) */
+.m1 { --name-base:26pt; --title-base:15pt; --role-base:13pt; --body-base:10.5pt; }
+.m2 { --name-base:27pt; --title-base:14pt; --role-base:12.5pt; --body-base:11pt; }
+.m4 { --name-base:29pt; --title-base:14pt; --role-base:12.5pt; --body-base:11pt; }
+.m5 { --name-base:28pt; --title-base:13pt; --role-base:12.5pt; --body-base:11pt; }
+.m6 { --name-base:30pt; --title-base:15pt; --role-base:12pt; --body-base:10.5pt; }
+.m7 { --name-base:28pt; --title-base:15pt; --role-base:12pt; --body-base:10.5pt; }
+.m8 { --name-base:28pt; --title-base:14pt; --role-base:12.5pt; --body-base:11pt; }
+.m9 { --name-base:30pt; --title-base:14pt; --role-base:12.5pt; --body-base:11pt; }
+.m10 { --name-base:28pt; --title-base:15pt; --role-base:12pt; --body-base:10.5pt; }
+.ph { display:flex; align-items:center; justify-content:center; font-size:9pt; font-weight:700; text-align:center; }
+.ico { width:3.4mm; height:3.4mm; display:inline-block; vertical-align:-0.5mm; margin-right:2.5mm; }
+.cv-entry { margin-bottom:calc(2mm * var(--cf,1)); }
+.cv-entry .row { display:flex; justify-content:space-between; align-items:baseline; gap:3mm; }
+.cv-entry .ttl { font-weight:700; font-size:11pt; }
+.cv-entry .dt { font-style:italic; font-size:9pt; color:#999; white-space:nowrap; }
+.cv-entry .sub { font-weight:700; font-size:10pt; margin:0.5mm 0; }
+.cv-entry ul { margin-left:5mm; }
+.cv-entry li { font-size:10.5pt; margin-bottom:0.6mm; }
+.prof { font-size:10.5pt; }
+
+/* colonnes génériques */
+.twocol { display:flex; min-height:297mm; }
+.col-side { display:flex; flex-direction:column; }
+.col-main { flex:1; }
+
+/* ===== Texte d'exemple (champ vide) grisé + clic = va au champ du formulaire ===== */
+#cv-sheet .ex { opacity:.55; font-style:italic; }
+#cv-sheet .fld { cursor:text; }
+#cv-sheet .fld:hover { outline:2px dashed rgba(118,179,120,.9); outline-offset:1px; }
+.champ-pointe { box-shadow:0 0 0 3px rgba(118,179,120,.7) !important; border-radius:4px; }
+@media print { #cv-sheet .ex { opacity:1 !important; font-style:normal !important; } #cv-sheet .fld:hover { outline:none !important; } }

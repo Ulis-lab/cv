@@ -1,0 +1,13 @@
+/* css/templates/m10.css — Aperçu du modèle m10 (doit rester synchronisé avec js/preview/templates/m10.js et js/pptx/templates/m10.js) */
+
+/* ---- m10 Dégradé pêche→rose colonne ---- */
+.m10 .col-side { width:75mm; background:linear-gradient(#F7B7A3,#D98AAE); color:#fff; padding:14mm 9mm; }
+.m10 .ph-photo { width:46mm; height:46mm; border-radius:50%; background:#fff; border:2.5px solid #fff; color:#C75B7A; margin:0 auto 6mm; }
+.m10 .col-side h3 { font-size:12pt; text-transform:uppercase; color:#fff; margin:6mm 0 3mm; }
+.m10 .col-side .ln { font-size:10pt; margin-bottom:1.2mm; }
+.m10 .col-main { padding:14mm 10mm; }
+.m10 .cv-name { font-size:28pt; font-weight:800; color:#C75B7A; }
+.m10 .role { font-style:italic; font-size:12pt; color:#777; margin-bottom:4mm; }
+.m10 .col-main h3 { font-size:15pt; font-weight:800; color:#C75B7A; text-transform:uppercase; margin:6mm 0 3mm; display:flex; align-items:center; gap:3mm; }
+.m10 .col-main h3::before { content:""; width:5mm; height:5mm; border-radius:50%; background:#C75B7A; display:inline-block; }
+.m10 .col-main h3:first-of-type { margin-top:0; }

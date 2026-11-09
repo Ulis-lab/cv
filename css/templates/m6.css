@@ -1,0 +1,14 @@
+/* css/templates/m6.css — Aperçu du modèle m6 (doit rester synchronisé avec js/preview/templates/m6.js et js/pptx/templates/m6.js) */
+
+/* ---- m6 Violet créatif ---- */
+.m6 .col-side { width:75mm; background:#5B2C6F; color:#fff; padding:14mm 9mm; }
+.m6 .ph-photo { width:46mm; height:46mm; border-radius:50%; background:#744086; border:2.5px solid #F2C14E; color:#fff; margin:0 auto 6mm; }
+.m6 .col-side h3 { font-size:12pt; text-transform:uppercase; color:#F2C14E; margin:6mm 0 3mm; }
+.m6 .col-side .ln { font-size:10pt; margin-bottom:1.2mm; }
+.m6 .col-main { padding:14mm 10mm; }
+.m6 .cv-name { font-size:30pt; font-weight:800; }
+.m6 .cv-name .p { color:#5B2C6F; } .m6 .cv-name .n { color:#F2C14E; }
+.m6 .role { font-style:italic; font-size:12pt; color:#555; margin-bottom:4mm; }
+.m6 .col-main h3 { font-size:15pt; font-weight:800; color:#5B2C6F; text-transform:uppercase; margin:6mm 0 3mm; display:flex; align-items:center; gap:3mm; }
+.m6 .col-main h3::before { content:""; width:3mm; height:6mm; border-radius:1mm; background:#F2C14E; display:inline-block; }
+.m6 .col-main h3:first-of-type { margin-top:0; }

@@ -1,0 +1,12 @@
+/* css/templates/m1.css — Aperçu du modèle m1 (doit rester synchronisé avec js/preview/templates/m1.js et js/pptx/templates/m1.js) */
+
+/* ---- m1 Bleu ---- */
+.m1 .col-side { width:70mm; background:#33373D; color:#fff; padding:14mm 9mm; }
+.m1 .ph-photo { width:43mm; height:43mm; border-radius:50%; background:#474C54; border:1.5px solid #fff; color:#fff; margin:0 auto 6mm; }
+.m1 .col-side h3 { font-size:12pt; text-transform:uppercase; border-bottom:1px solid #C9CDD3; padding-bottom:1.5mm; margin:6mm 0 3mm; }
+.m1 .col-side .ln { font-size:10pt; margin-bottom:1.2mm; }
+.m1 .col-main { padding:14mm 10mm; }
+.m1 .cv-name { font-size:26pt; font-weight:800; color:#33373D; }
+.m1 .role { font-style:italic; font-size:13pt; color:#555; margin-bottom:5mm; }
+.m1 .col-main h3 { font-size:15pt; text-transform:uppercase; color:#33373D; font-weight:800; border-bottom:2px solid #33373D; padding-bottom:1.5mm; margin:6mm 0 3mm; }
+.m1 .col-main h3:first-of-type { margin-top:0; }

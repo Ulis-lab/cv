@@ -1,0 +1,14 @@
+/* css/templates/m8.css — Aperçu du modèle m8 (doit rester synchronisé avec js/preview/templates/m8.js et js/pptx/templates/m8.js) */
+
+/* ---- m8 Pastel menthe ---- */
+.m8 .hd { background:#CDEDE3; padding:9mm 16mm; display:flex; justify-content:space-between; align-items:center; gap:8mm; }
+.m8 .cv-name { font-size:30pt; font-weight:800; color:#2E8B73; }
+.m8 .role { font-style:italic; color:#5A6B66; font-size:13pt; margin-top:1.5mm; }
+.m8 .contact-row { margin-top:3mm; font-size:9.5pt; display:grid; grid-template-columns:auto auto; column-gap:8mm; row-gap:1.5mm; justify-content:start; align-items:center; color:#5A6B66; }
+.m8 .ph-photo { width:38mm; height:38mm; border-radius:50%; background:#fff; border:1.5px solid #2E8B73; color:#2E8B73; flex-shrink:0; }
+.m8 .bd { padding:9mm 16mm; }
+.m8 .bd h3 { font-size:15pt; font-weight:800; color:#2E8B73; text-transform:uppercase; margin:6mm 0 3mm; display:flex; align-items:center; gap:3mm; }
+.m8 .bd h3::before { content:""; width:3mm; height:6mm; border-radius:1mm; background:#FBE3D6; display:inline-block; }
+.m8 .bd h3:first-of-type { margin-top:0; }
+.m8 .tags { display:flex; flex-wrap:wrap; gap:2mm; }
+.m8 .tag { font-size:9.5pt; font-weight:700; color:#2E8B73; background:#CDEDE3; padding:1mm 3mm; border-radius:99px; }

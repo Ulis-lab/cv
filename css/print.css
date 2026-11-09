@@ -1,0 +1,12 @@
+/* css/print.css — Impression / PDF : seule la feuille A4 est imprimée */
+
+/* ===== IMPRESSION / PDF : seule la feuille, pleine page ===== */
+@media print {
+  @page { size:A4 portrait; margin:0; }
+  * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+  body * { visibility:hidden !important; }
+  #cv-sheet, #cv-sheet * { visibility:visible !important; }
+  #sheet-wrap { transform:none !important; }
+  #cv-sheet { position:absolute; left:0; top:0; transform:none !important; box-shadow:none !important; margin:0; width:210mm; min-height:297mm; }
+  header.topbar,.form-panel,.template-bar,.alerte-page,.vue-bar { display:none !important; }
+}

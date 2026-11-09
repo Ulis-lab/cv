@@ -1,0 +1,11 @@
+/* css/toasts.css — Messages à l'écran (succès, erreur, « Annuler ») */
+
+.toasts { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); z-index:1200; display:flex; flex-direction:column; gap:8px; align-items:center; width:min(92vw,520px); pointer-events:none; }
+.toast { pointer-events:auto; display:flex; align-items:center; gap:12px; padding:10px 16px; border-radius:10px; font-weight:600; font-size:14px; color:#fff; box-shadow:0 4px 16px rgba(0,0,0,.25); max-width:100%; }
+.toast.ok { background:#1e7a50; }
+.toast.err { background:#b3261e; }
+.toast-msg { flex:1; line-height:1.35; }
+.toast-btn { background:#fff; color:#1e4d36; border:none; border-radius:6px; padding:6px 12px; font-weight:700; cursor:pointer; font-size:14px; }
+.toast-btn:hover { background:#e8f3ec; }
+.toast-x { background:transparent; color:#fff; border:none; font-size:22px; line-height:1; cursor:pointer; padding:0 4px; }
+@media print { .toasts { display:none; } }

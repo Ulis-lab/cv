@@ -1,0 +1,15 @@
+BETA 0.4.0 - code rangé en petits fichiers + corrections de l'audit
+====================================================================
+
+Le fonctionnement du PowerPoint n'a PAS changé : les fichiers .pptx générés sont identiques
+à ceux de la Beta 0.3.5 (vérifié sur 2 CV x 9 modèles, identiques à l'octet près).
+
+Revenir à la Beta 0.3.5 (ancienne structure, gros fichiers) :
+  -> dossier  sauvegardes/Beta0.3.5_avant_refonte/   (main.js, index.html, app.js, modeles.js...)
+  -> ou sur GitHub : commit f61235d
+
+Revenir au calcul d'avant les puces longues (Beta 0.3.4) :
+  -> dans js/pptx/constants.js :  const CALCUL_LIGNES = false;
+  -> ou sauvegardes/SAUVEGARDE_modeles_Beta0.3.4.js
+
+Voir ARCHITECTURE.md pour savoir où se trouve chaque chose.

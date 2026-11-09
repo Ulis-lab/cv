@@ -1,0 +1,11 @@
+/* css/templates/m2.css — Aperçu du modèle m2 (doit rester synchronisé avec js/preview/templates/m2.js et js/pptx/templates/m2.js) */
+
+/* ---- m2 Corail en-tête ---- */
+.m2 .hd { background:#2B2B2B; color:#fff; padding:9mm 16mm; display:flex; justify-content:space-between; align-items:center; gap:8mm; }
+.m2 .cv-name { font-family:Cambria,Georgia,serif; font-size:28pt; font-weight:700; }
+.m2 .role { font-style:italic; color:#F2D7CC; font-size:13pt; margin-top:1.5mm; }
+.m2 .contact-row { margin-top:3mm; font-size:9.5pt; display:grid; grid-template-columns:auto auto; column-gap:8mm; row-gap:1.5mm; justify-content:start; align-items:center; }
+.m2 .ph-photo { width:36mm; height:36mm; border-radius:6px; background:#3D3D3D; border:1.5px solid #fff; color:#fff; flex-shrink:0; }
+.m2 .bd { padding:9mm 16mm; }
+.m2 .bd h3 { font-family:Cambria,serif; font-size:15pt; text-transform:uppercase; color:#C2492B; margin:6mm 0 3mm; }
+.m2 .bd h3:first-of-type { margin-top:0; }

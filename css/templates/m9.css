@@ -1,0 +1,12 @@
+/* css/templates/m9.css — Aperçu du modèle m9 (doit rester synchronisé avec js/preview/templates/m9.js et js/pptx/templates/m9.js) */
+
+/* ---- m9 Dégradé bleu→violet ---- */
+.m9 .hd { background:linear-gradient(135deg,#4A6CF7,#9B4BC4); padding:10mm 16mm; position:relative; min-height:2.05in; }
+.m9 .cv-name { font-size:31pt; font-weight:800; color:#fff; }
+.m9 .role { font-style:italic; color:#EDE9FB; font-size:13pt; margin-top:1.5mm; }
+.m9 .contact-row { margin-top:3mm; font-size:9.5pt; display:grid; grid-template-columns:auto auto; column-gap:8mm; row-gap:1.5mm; justify-content:start; align-items:center; color:#fff; }
+.m9 .ph-photo { width:1.34in; height:1.34in; border-radius:50%; background:#ECE9FB; border:2px solid #fff; color:#5B4BC4; position:absolute; right:0.8in; top:0.45in; }
+.m9 .bd { padding:9mm 16mm; }
+.m9 .bd h3 { font-size:15pt; font-weight:800; color:#5B4BC4; text-transform:uppercase; margin:6mm 0 3mm; display:flex; align-items:center; gap:3mm; }
+.m9 .bd h3::before { content:""; width:5mm; height:5mm; border-radius:50%; background:#5B4BC4; display:inline-block; }
+.m9 .bd h3:first-of-type { margin-top:0; }

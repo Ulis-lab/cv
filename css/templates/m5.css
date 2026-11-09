@@ -1,0 +1,13 @@
+/* css/templates/m5.css — Aperçu du modèle m5 (doit rester synchronisé avec js/preview/templates/m5.js et js/pptx/templates/m5.js) */
+
+/* ---- m5 Sombre doré ---- */
+.m5 { background:#1C1C24; padding:9mm 16mm 14mm; min-height:297mm; }
+.m5 .ph-photo { width:37mm; height:37mm; border-radius:50%; background:#2A2A33; border:2px solid #C9A24B; color:#C9A24B; margin:0 auto 3mm; }
+.m5 .cv-name { font-family:Cambria,serif; font-size:30pt; font-weight:800; color:#EDEDED; text-align:center; letter-spacing:1px; }
+.m5 .role { font-style:italic; color:#C9A24B; font-size:13pt; text-align:center; margin:1.5mm 0; }
+.m5 .contact-center { display:flex; gap:6mm; flex-wrap:wrap; justify-content:center; font-size:9.5pt; color:#9A9AA5; }
+.m5 h3 { font-family:Cambria,serif; font-size:13pt; text-transform:uppercase; letter-spacing:2px; color:#C9A24B; border-bottom:.75px solid #3A3A44; padding-bottom:1.5mm; margin:7mm 0 3mm; }
+.m5 .prof, .m5 .cv-entry .ttl { color:#EDEDED; }
+.m5 .cv-entry .sub { color:#C9A24B; font-style:italic; font-weight:400; }
+.m5 .cv-entry li { color:#EDEDED; }
+.m5 .compact { color:#EDEDED; font-size:10.5pt; }

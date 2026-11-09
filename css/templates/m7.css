@@ -1,0 +1,13 @@
+/* css/templates/m7.css — Aperçu du modèle m7 (doit rester synchronisé avec js/preview/templates/m7.js et js/pptx/templates/m7.js) */
+
+/* ---- m7 Pastel lavande ---- */
+.m7 .col-side { width:75mm; background:#E7E0F5; color:#3A3A4A; padding:14mm 9mm; }
+.m7 .ph-photo { width:46mm; height:46mm; border-radius:50%; background:#fff; border:2px solid #9B86C9; color:#6B5B95; margin:0 auto 6mm; }
+.m7 .col-side h3 { font-size:12pt; text-transform:uppercase; color:#6B5B95; margin:6mm 0 3mm; }
+.m7 .col-side .ln { font-size:10pt; margin-bottom:1.2mm; }
+.m7 .col-main { padding:14mm 10mm; }
+.m7 .cv-name { font-size:28pt; font-weight:800; color:#6B5B95; }
+.m7 .role { font-style:italic; font-size:12pt; color:#777; margin-bottom:4mm; }
+.m7 .col-main h3 { font-size:15pt; font-weight:800; color:#6B5B95; text-transform:uppercase; margin:6mm 0 3mm; display:flex; align-items:center; gap:3mm; }
+.m7 .col-main h3::before { content:""; width:5mm; height:5mm; border-radius:50%; background:#9B86C9; display:inline-block; }
+.m7 .col-main h3:first-of-type { margin-top:0; }
