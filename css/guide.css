@@ -4,11 +4,24 @@
 .guide-head, .guide-modeles, .guide-nav, .guide-export { display:none; }
 #btn-mode { font-size:13px; }
 
+/* ===== HABILLAGE COMMUN (mode guidé ET mode complet) : crème + violet nuit, champs arrondis ===== */
+body { --ui-accent:#3b1f5c; --ui-accent-strong:#2a1442; --ui-btn:#3b1f5c; --ui-btn-hover:#2a1442; --ui-accent-text:#2a1442; --ui-accent-soft:#efe8f7; --ui-bg:#fff7ea; --ui-panel:#fff7ea; --ui-border:#cdbfe3; --ui-input:#fff; --ui-muted:#4a3d63; --ui-ph:#6b5f82; }
+body[data-theme="dark"] { --ui-accent:#b79df0; --ui-accent-strong:#cbb7f7; --ui-btn:#6a3fb5; --ui-btn-hover:#7c52c7; --ui-accent-text:#d3c3fa; --ui-accent-soft:#2e2540; --ui-bg:#1a1d21; --ui-panel:#1a1d21; --ui-border:#4f3f6e; --ui-input:#24282e; --ui-muted:#aeb3c4; --ui-ph:#9aa1ab; }
+body header.topbar { border-bottom:none; }
+.form-panel input[type=text], .form-panel textarea { border:2px solid var(--ui-border); border-radius:14px; font-size:16px; padding:10px 14px; }
+.form-panel input[type=text] { min-height:46px; }
+.form-panel select { border:2px solid var(--ui-border) !important; border-radius:14px !important; min-height:44px; }
+.form-panel h2 { color:var(--ui-accent-text); }
+.form-panel label.field .lab { font-weight:700; }
+.repeat-item { border:2px solid var(--ui-border); border-radius:16px; }
+.add-btn { border-radius:14px; min-height:44px; }
+.tab, .tpl-chip { border-width:2px; }
+.tab { border-radius:14px; }
+#cv-sheet { box-shadow:0 18px 46px rgba(59,31,92,.28); }
+
 /* ===== ORDINATEUR : mode guidé ===== */
 @media (min-width:901px) {
-  body.mode-guide { --ui-accent:#3b1f5c; --ui-accent-strong:#2a1442; --ui-btn:#3b1f5c; --ui-btn-hover:#2a1442; --ui-accent-text:#2a1442; --ui-accent-soft:#efe8f7; --ui-bg:#fff7ea; --ui-panel:#fff7ea; --ui-border:#cdbfe3; --ui-input:#fff; --ui-muted:#4a3d63; --ui-ph:#6b5f82; }
-  body.mode-guide[data-theme="dark"] { --ui-accent:#b79df0; --ui-accent-strong:#cbb7f7; --ui-btn:#6a3fb5; --ui-btn-hover:#7c52c7; --ui-accent-text:#d3c3fa; --ui-accent-soft:#2e2540; --ui-bg:#1a1d21; --ui-panel:#1a1d21; --ui-border:#4f3f6e; --ui-input:#24282e; --ui-muted:#aeb3c4; --ui-ph:#9aa1ab; }
-  body.mode-guide header.topbar { border-bottom:none; padding:18px 40px; }
+  body.mode-guide header.topbar { padding:18px 40px; }
   body.mode-guide #btn-pptx, body.mode-guide #btn-pdf, body.mode-guide #btn-print, body.mode-guide #btn-save, body.mode-guide #btn-reset { display:none; } /* en guidé : export, enregistrer et effacer sont à l'étape 5 */
   body.mode-guide .topbar h1 { white-space:nowrap; }
   body.mode-guide .layout { grid-template-columns:minmax(0,1fr) clamp(380px,40vw,560px); }
@@ -17,7 +30,6 @@
   body.mode-guide .tabs { display:none; }
   body.mode-guide .template-bar { display:none; }
   body.mode-guide .preview-panel { padding:6px 28px 28px; justify-content:flex-start; }
-  body.mode-guide #cv-sheet { box-shadow:0 18px 46px rgba(59,31,92,.28); }
 
   /* en-tête : étapes + titre */
   body.mode-guide .guide-head { display:block; padding-top:4px; }
@@ -38,14 +50,13 @@
 
   /* champs plus grands */
   body.mode-guide .form-panel label.field .lab { font-size:15px; font-weight:700; margin-bottom:7px; }
-  body.mode-guide .form-panel input[type=text], body.mode-guide .form-panel textarea { border:2px solid var(--ui-border); border-radius:14px; font-size:17px; padding:12px 16px; }
+  body.mode-guide .form-panel input[type=text], body.mode-guide .form-panel textarea { font-size:17px; padding:12px 16px; }
   body.mode-guide .form-panel input[type=text] { min-height:52px; }
   body.mode-guide .form-panel textarea { min-height:100px; }
-  body.mode-guide .form-panel select { border:2px solid var(--ui-border) !important; border-radius:14px !important; font-size:16px !important; min-height:48px; }
-  body.mode-guide .form-panel h2 { font-size:13px; color:var(--ui-accent-text); margin:26px 0 12px; }
+  body.mode-guide .form-panel select { font-size:16px !important; min-height:48px; }
+  body.mode-guide .form-panel h2 { font-size:13px; margin:26px 0 12px; }
   body.mode-guide .form-panel h2:first-of-type { margin-top:4px; }
-  body.mode-guide .repeat-item { border:2px solid var(--ui-border); border-radius:16px; background:var(--ui-input); }
-  body.mode-guide .add-btn { border-radius:14px; min-height:48px; font-size:15px; }
+  body.mode-guide .add-btn { min-height:48px; font-size:15px; }
 
   /* quelle partie du formulaire est visible à chaque étape */
   body.mode-guide #tab-remplir { display:block !important; }
