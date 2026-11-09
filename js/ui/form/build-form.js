@@ -5,4 +5,4 @@
    (chargé en 2e : fonctions de rendu + données d export)
    ============================================================ */
 /* ---------- FORMULAIRE — ONGLET REMPLIR ---------- */
-function buildForm(){ buildFormRemplir(); buildFormPerso(); }
+function buildForm(){ buildFormRemplir(); buildFormPerso(); guideEtiqueter(); } // guideEtiqueter : range les blocs par étape (mode guidé)

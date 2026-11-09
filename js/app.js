@@ -11,4 +11,5 @@ buildForm();
 buildTemplateBar();
 render();
 cablerEditeurPhoto(); // clic sur la photo de l'aperçu = ouvre l'éditeur
+guideInit();         // mode guidé (5 étapes) + bascule Guidé / Complet
 proposerReprise();    // un CV gardé automatiquement ? on propose de le reprendre

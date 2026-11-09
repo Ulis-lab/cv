@@ -1,0 +1,86 @@
+/* css/guide.css — Mode Guidé (ordinateur) + onglet Exporter (mobile) */
+
+/* éléments du mode guidé : cachés par défaut, affichés seulement en mode guidé sur ordinateur */
+.guide-head, .guide-modeles, .guide-nav, .guide-export { display:none; }
+#btn-mode { font-size:13px; }
+
+/* ===== ORDINATEUR : mode guidé ===== */
+@media (min-width:901px) {
+  body.mode-guide { --ui-accent:#3b1f5c; --ui-accent-strong:#2a1442; --ui-btn:#3b1f5c; --ui-btn-hover:#2a1442; --ui-accent-text:#2a1442; --ui-accent-soft:#efe8f7; --ui-bg:#fff7ea; --ui-panel:#fff7ea; --ui-border:#cdbfe3; --ui-input:#fff; --ui-muted:#4a3d63; --ui-ph:#6b5f82; }
+  body.mode-guide[data-theme="dark"] { --ui-accent:#b79df0; --ui-accent-strong:#cbb7f7; --ui-btn:#6a3fb5; --ui-btn-hover:#7c52c7; --ui-accent-text:#d3c3fa; --ui-accent-soft:#2e2540; --ui-bg:#1a1d21; --ui-panel:#1a1d21; --ui-border:#4f3f6e; --ui-input:#24282e; --ui-muted:#aeb3c4; --ui-ph:#9aa1ab; }
+  body.mode-guide header.topbar { border-bottom:none; padding:18px 40px; }
+  body.mode-guide #btn-pptx, body.mode-guide #btn-pdf, body.mode-guide #btn-print, body.mode-guide #btn-save, body.mode-guide #btn-reset { display:none; } /* en guidé : export, enregistrer et effacer sont à l'étape 5 */
+  body.mode-guide .topbar h1 { white-space:nowrap; }
+  body.mode-guide .layout { grid-template-columns:minmax(0,1fr) clamp(380px,40vw,560px); }
+  body.mode-guide .form-panel { border-right:none; padding:6px 40px 40px; }
+  body.mode-guide .form-panel > * { max-width:660px; }
+  body.mode-guide .tabs { display:none; }
+  body.mode-guide .template-bar { display:none; }
+  body.mode-guide .preview-panel { padding:6px 28px 28px; justify-content:flex-start; }
+  body.mode-guide #cv-sheet { box-shadow:0 18px 46px rgba(59,31,92,.28); }
+
+  /* en-tête : étapes + titre */
+  body.mode-guide .guide-head { display:block; padding-top:4px; }
+  .gs-steps { display:flex; align-items:center; margin-bottom:26px; flex-wrap:nowrap; }
+  .gs-st { display:flex; align-items:center; gap:8px; background:none; border:none; padding:2px; min-height:0; font-size:14px; font-weight:600; color:var(--ui-muted); border-radius:999px; }
+  .gs-st:hover { background:none; }
+  .gs-dot { width:32px; height:32px; border-radius:50%; border:2px solid var(--ui-border); background:var(--ui-input); display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:var(--ui-accent-text); flex:none; }
+  .gs-st.done .gs-dot { background:var(--ui-btn); border-color:var(--ui-btn); color:#fff; }
+  .gs-st.now .gs-dot { border-color:var(--ui-btn); box-shadow:0 0 0 4px var(--ui-accent-soft); }
+  .gs-st.now { color:var(--ui-text); }
+  .gs-line { flex:1 1 14px; min-width:10px; max-width:44px; height:2px; background:var(--ui-border); margin:0 8px; }
+  .gs-line.done { background:var(--ui-btn); }
+  .gs-eyebrow { font-size:13px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--ui-accent-text); margin-bottom:10px; }
+  .gs-titre { font-size:clamp(30px,3.4vw,46px); line-height:1.08; letter-spacing:-1px; font-weight:800; margin-bottom:10px; }
+  .gs-titre:focus { outline:none; }
+  .gs-aide { font-size:17px; line-height:1.5; color:var(--ui-muted); margin-bottom:26px; max-width:540px; }
+  @media (max-width:1180px) { .gs-st:not(.now) .gs-lab { display:none; } }
+
+  /* champs plus grands */
+  body.mode-guide .form-panel label.field .lab { font-size:15px; font-weight:700; margin-bottom:7px; }
+  body.mode-guide .form-panel input[type=text], body.mode-guide .form-panel textarea { border:2px solid var(--ui-border); border-radius:14px; font-size:17px; padding:12px 16px; }
+  body.mode-guide .form-panel input[type=text] { min-height:52px; }
+  body.mode-guide .form-panel textarea { min-height:100px; }
+  body.mode-guide .form-panel select { border:2px solid var(--ui-border) !important; border-radius:14px !important; font-size:16px !important; min-height:48px; }
+  body.mode-guide .form-panel h2 { font-size:13px; color:var(--ui-accent-text); margin:26px 0 12px; }
+  body.mode-guide .form-panel h2:first-of-type { margin-top:4px; }
+  body.mode-guide .repeat-item { border:2px solid var(--ui-border); border-radius:16px; background:var(--ui-input); }
+  body.mode-guide .add-btn { border-radius:14px; min-height:48px; font-size:15px; }
+
+  /* quelle partie du formulaire est visible à chaque étape */
+  body.mode-guide #tab-remplir { display:block !important; }
+  body.mode-guide #tab-perso { display:none !important; }
+  body.mode-guide[data-etape="1"] #tab-remplir > :not([data-step="1"]),
+  body.mode-guide[data-etape="2"] #tab-remplir > :not([data-step="2"]),
+  body.mode-guide[data-etape="3"] #tab-remplir > :not([data-step="3"]) { display:none !important; }
+  body.mode-guide[data-etape="4"] #tab-remplir, body.mode-guide[data-etape="5"] #tab-remplir { display:none !important; }
+  body.mode-guide[data-etape="4"] #tab-perso { display:block !important; }
+  body.mode-guide[data-etape="4"] .guide-modeles { display:block; margin-bottom:22px; }
+  body.mode-guide[data-etape="5"] .guide-export { display:block; }
+  .gs-chips { display:flex; flex-wrap:wrap; gap:8px; }
+  .gs-chips .tpl-chip { padding:8px 14px; font-size:14px; border-width:2px; }
+
+  /* boutons Retour / Continuer */
+  body.mode-guide .guide-nav { display:flex; align-items:center; gap:14px; margin-top:30px; flex-wrap:wrap; }
+  .gs-next { min-height:54px; padding:0 32px; border-radius:16px; border:none; background:var(--ui-btn); color:#fff; font-size:17px; font-weight:700; }
+  .gs-next:hover { background:var(--ui-btn-hover); }
+  .gs-back { min-height:54px; padding:0 22px; border-radius:16px; border:2px solid var(--ui-border); background:transparent; font-size:16px; }
+  .gs-skip { background:none; border:none; text-decoration:underline; color:var(--ui-muted); font-size:15px; padding:6px; min-height:0; }
+  .gs-skip:hover { background:none; color:var(--ui-text); }
+}
+
+/* ===== Panneau « Exporter » (étape 5 sur ordinateur, onglet Exporter sur mobile) ===== */
+.gx-btns { display:flex; flex-wrap:wrap; gap:10px; }
+.gx-big { min-height:54px; padding:0 22px; font-size:16px; border-radius:14px; }
+.gx-note { font-size:13px; color:var(--ui-muted); margin:10px 0 4px; line-height:1.45; }
+.guide-export h2 { font-size:12px; text-transform:uppercase; letter-spacing:.6px; color:var(--ui-muted); margin:22px 0 10px; font-weight:700; }
+.guide-export h2:first-child { margin-top:0; }
+
+/* ===== MOBILE : onglet Exporter ===== */
+@media (max-width:900px) {
+  .topbar .actions { display:none; }
+  body.vue-export .form-panel > :not(.guide-export) { display:none !important; }
+  body.vue-export .form-panel .guide-export { display:block; }
+  body.vue-export .preview-panel { display:none; }
+  .vue-bar button { font-size:14px; padding:6px 4px; }
+}
