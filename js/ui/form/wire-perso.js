@@ -15,8 +15,6 @@ function wirePerso(){
     markModifie(); render();
   };
   // bouton thème (déplacé ici)
-  const bt=document.getElementById("btn-theme2");
-  if(bt){ majBoutonTheme(); bt.onclick=()=>{const dark=document.body.getAttribute("data-theme")!=="dark";appliquerTheme(dark);try{localStorage.setItem("cv-theme",dark?"dark":"light");}catch(e){}}; }
   // couleur libre
   const col=document.getElementById("cv-couleur");
   if(col) col.addEventListener("input",()=>{data.couleur=col.value;markModifie();render();});

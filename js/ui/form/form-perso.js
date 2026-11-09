@@ -36,10 +36,6 @@ function buildFormPerso(){
       <input type="range" id="sc-body" min="70" max="140" step="5" value="${nombreSur(data.scaleBody,70,140,100)}" style="width:100%"></label>
 
     <button type="button" id="sc-reset" style="font-size:12px;margin-bottom:6px">↺ Tailles d'origine</button>
-
-    <h2>Apparence de l'application</h2>
-    <label class="field"><span class="lab">Mode d'affichage</span>
-      <button type="button" id="btn-theme2" class="primary" style="width:100%">🌙 Activer le mode nuit</button></label>
   `;
   wirePerso();
 }

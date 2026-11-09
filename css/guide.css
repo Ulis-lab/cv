@@ -84,3 +84,10 @@
   body.vue-export .preview-panel { display:none; }
   .vue-bar button { font-size:14px; padding:6px 4px; }
 }
+
+/* ===== Bouton jour / nuit (barre du haut) ===== */
+.btn-theme { width:42px; height:42px; min-width:42px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center; flex:none; }
+@media (max-width:900px) {
+  header.topbar { position:relative; }
+  .btn-theme { position:absolute; right:12px; top:8px; }
+}
