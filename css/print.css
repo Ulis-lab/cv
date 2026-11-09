@@ -8,5 +8,9 @@
   #cv-sheet, #cv-sheet * { visibility:visible !important; }
   #sheet-wrap { transform:none !important; }
   #cv-sheet { position:absolute; left:0; top:0; transform:none !important; box-shadow:none !important; margin:0; width:210mm; min-height:297mm; }
-  header.topbar,.form-panel,.template-bar,.alerte-page,.vue-bar { display:none !important; }
+  header.topbar,.form-panel,.template-bar,.alerte-page,.vue-bar,.btn-theme { display:none !important; }
+  /* la grille et la zone d'aperçu (hauteur fixe + défilement) faisaient sortir la feuille de la page : PDF blanc */
+  html, body { height:auto !important; overflow:visible !important; background:#fff !important; }
+  .layout { display:block !important; height:auto !important; min-height:0 !important; padding:0 !important; }
+  .preview-panel { display:block !important; overflow:visible !important; padding:0 !important; }
 }
